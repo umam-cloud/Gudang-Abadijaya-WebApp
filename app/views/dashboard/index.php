@@ -87,7 +87,7 @@
 </div>
 
 <!-- Charts & Stock Status -->
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+<div class="dashboard-charts-grid">
     <!-- Stock Gudang Chart Card -->
     <div class="section-card">
         <div class="section-title">

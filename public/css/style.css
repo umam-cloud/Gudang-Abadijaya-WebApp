@@ -448,6 +448,13 @@ body {
 }
 
 /* Glassmorphism Section Cards */
+.dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
 .section-card {
     background: var(--bg-glass);
     backdrop-filter: blur(16px);
@@ -961,6 +968,22 @@ body {
     
     .inventory-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .dashboard-charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .alert-banner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: left;
+        gap: 1rem;
+    }
+    
+    .alert-banner .btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .tab-menu {
