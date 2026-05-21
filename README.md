@@ -35,4 +35,4 @@ Proyek ini dirancang agar sangat mudah dijalankan oleh siapa saja di komputer lo
 
 ---
 ### Pengaturan Lanjutan (Opsional)
-Jika Anda menggunakan password khusus untuk MySQL "root", Anda dapat mengubah konfigurasi koneksi pada file `app/config/Database.php` dan `install.php` (ubah bagian `$password`). Secara default, password pada XAMPP dibiarkan kosong (`''`).
+Jika Anda menggunakan password khusus untuk MySQL "root", Anda dapat mengubah konfigurasi koneksi pada file `app/config/Database.php` (ubah bagian `$password`). Secara default, password pada XAMPP dibiarkan kosong (`''`).
