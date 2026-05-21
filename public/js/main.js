@@ -110,4 +110,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 5. Mobile Menu Toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    if (mobileMenuToggle && sidebar && mobileOverlay) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        });
+    }
 });

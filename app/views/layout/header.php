@@ -16,8 +16,11 @@ $activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboar
 </head>
 <body>
     <div class="app-container">
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+        
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <!-- Gas Cylinder Logo Icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -104,6 +107,21 @@ $activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboar
 
         <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Mobile Header (Visible only on small screens) -->
+            <div class="mobile-header">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px; height:24px; color:var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.283 8.283 0 013 6.3 8.284 8.284 0 003-6.3 8.287 8.287 0 002.962-2.386z" />
+                    </svg>
+                    <h1 style="font-size:1.2rem; background: linear-gradient(135deg, var(--primary), var(--success)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TabungFlow</h1>
+                </div>
+                <button id="mobileMenuToggle" class="btn btn-secondary btn-sm" style="padding: 0.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:20px; height:20px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+
             <!-- Global Flash Messages -->
             <?php if (isset($_GET['msg'])): ?>
                 <?php if ($_GET['msg'] === 'success_create'): ?>
