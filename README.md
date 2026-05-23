@@ -1,1 +1,1 @@
-#Gudang Abadi WEB
+Gudang Abadi WEB
