@@ -31,8 +31,8 @@ Aplikasi Web Manajemen Logistik Tabung Gas dengan desain modern *Glassmorphism*.
 4. **Login Ke Aplikasi**
    Buka URL aplikasi di browser Anda: `http://localhost/Gudang-Abadi-WebApp/`
    Gunakan kredensial *default* berikut untuk masuk:
-   - **Username:** `admin` atau `umam`
-   - **Password:** `admin`
+   - **Username:** `admin`
+   - **Password:** `admin123`
 
 ## 📂 Struktur Direktori (Native MVC Pattern)
 
@@ -49,7 +49,6 @@ Gudang-Abadijaya-WebApp
 ├── public/
 │   ├── css/             # Custom CSS stylesheet
 │   └── js/              # Interaktivitas JS (Dark Mode handler, Live Search, Modal, dll)
-├── gudang_abadi_seed.sql # Dump Database dengan struktur & data komplit
 ├── README.md            # Dokumentasi proyek (File yang sedang Anda baca)
 └── index.php            # Entry point dari aplikasi
 ```
