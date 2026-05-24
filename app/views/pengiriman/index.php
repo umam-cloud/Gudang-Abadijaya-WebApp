@@ -6,11 +6,13 @@
         <h2 class="text-2xl font-bold tracking-tight">Catatan Pengiriman Harian</h2>
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Kelola pencatatan harian untuk pengiriman tabung isi ke klien dan pengembalian tabung kosong</p>
     </div>
-    <div>
+    <div class="flex items-center gap-3">
+        <a href="index.php?controller=pengiriman&action=export" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+            <i class="ph-bold ph-file-csv text-base"></i>
+            Export Excel
+        </a>
         <a href="index.php?controller=pengiriman&action=create" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <i class="ph-bold ph-plus text-base"></i>
             Catat Pengiriman Baru
         </a>
     </div>
@@ -23,7 +25,7 @@
     </div>
     
     <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-        <table class="w-full text-sm text-left whitespace-nowrap">
+        <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal</th>
@@ -58,7 +60,7 @@
                                     <a href="index.php?controller=pengiriman&action=edit&id=<?= $d['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline" title="Edit Log">
                                         Edit
                                     </a>
-                                    <a href="index.php?controller=pengiriman&action=delete&id=<?= $d['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirm('Apakah Anda yakin ingin menghapus catatan pengiriman ini? Stok di gudang dan relasi akan otomatis dihitung kembali.');" title="Hapus">
+                                    <a href="index.php?controller=pengiriman&action=delete&id=<?= $d['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Apakah Anda yakin ingin menghapus catatan pengiriman ini? Stok di gudang dan relasi akan otomatis dihitung kembali.', this.href);" title="Hapus">
                                         Hapus
                                     </a>
                                 </div>

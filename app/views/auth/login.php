@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -53,9 +55,7 @@
     
     <div class="glass-panel w-full max-w-md p-10 rounded-3xl shadow-xl shadow-indigo-500/10 dark:shadow-none">
         <div class="text-center mb-8">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-12 h-12 mx-auto mb-4 text-primary drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.283 8.283 0 013 6.3 8.284 8.284 0 003-6.3 8.287 8.287 0 002.962-2.386z" />
-            </svg>
+            <i class="ph ph-cylinder text-[48px] mx-auto mb-4 text-primary drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] block text-center"></i>
             <h1 class="text-3xl font-extrabold bg-gradient-to-br from-primary to-cyan-500 bg-clip-text text-transparent font-display mb-2">TabungFlow</h1>
             <p class="text-slate-500 dark:text-gray-400 text-sm">Silakan masuk ke akun Anda</p>
         </div>

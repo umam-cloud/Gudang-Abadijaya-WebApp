@@ -1,7 +1,7 @@
 <?php
 class Database {
     public $host = '127.0.0.1';
-    public $db_name = 'joki_tabung';
+    public $db_name = 'gudang_abadi';
     public $username = 'root';
     public $password = '';
     public $conn;

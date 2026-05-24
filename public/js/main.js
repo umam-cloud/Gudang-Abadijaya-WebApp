@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Toggle buttons
             tabButtons.forEach(b => {
                 b.classList.remove('text-primary', 'border-primary', 'dark:text-primary');
-                b.classList.add('text-slate-500', 'border-transparent');
+                b.classList.add('text-slate-500', 'dark:text-gray-400', 'border-transparent');
             });
-            btn.classList.remove('text-slate-500', 'border-transparent');
+            btn.classList.remove('text-slate-500', 'dark:text-gray-400', 'border-transparent');
             btn.classList.add('text-primary', 'border-primary', 'dark:text-primary');
             
             // Toggle contents
@@ -83,6 +83,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.classList.add('hidden');
             }, 300);
         }
+    }
+
+    window.confirmAction = function(event, message, url, title = 'Peringatan Konfirmasi') {
+        event.preventDefault();
+        document.getElementById('confirmModalMessage').textContent = message;
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalBtn').href = url;
+        window.openModal('globalConfirmModal');
+        return false;
     }
 
     // Close modal on clicking outside the box

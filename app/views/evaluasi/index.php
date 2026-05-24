@@ -15,9 +15,7 @@
     <?php if ($_GET['msg'] === 'success_eval'): ?>
         <div class="flex items-center justify-between p-4 mb-8 rounded-xl badge-success animate-[slideDown_0.4s_ease-out]">
             <div class="flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <i class="ph-bold ph-check-circle text-xl"></i>
                 <p class="font-medium">Log tindakan evaluasi berhasil disimpan!</p>
             </div>
             <button class="hover:opacity-75 transition-opacity alert-close-btn">&times;</button>
@@ -28,13 +26,13 @@
 <div class="glass-panel p-6 rounded-2xl shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h3 class="flex items-center gap-2 text-lg font-bold">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-danger"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <i class="ph-fill ph-warning-circle text-danger text-2xl"></i>
             Daftar Mitra Inaktif (Butuh Tindakan)
         </h3>
     </div>
 
     <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-        <table class="w-full text-sm text-left whitespace-nowrap">
+        <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Kode Relasi</th>
@@ -49,9 +47,7 @@
                 <?php if (empty($inactiveClients)): ?>
                     <tr>
                         <td colspan="6" class="px-5 py-12 text-center text-slate-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-4 opacity-50">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <i class="ph-bold ph-check-circle text-[48px] mx-auto mb-4 opacity-50 block text-center"></i>
                             Hebat! Semua mitra aktif bertransaksi dalam 30 hari terakhir.
                         </td>
                     </tr>

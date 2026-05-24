@@ -8,9 +8,7 @@
     </div>
     <div>
         <a href="index.php?controller=gudang&action=adjust" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <i class="ph-bold ph-sliders-horizontal text-base"></i>
             Penyesuaian Stok Gudang
         </a>
     </div>
@@ -48,13 +46,19 @@
 <!-- Tabs -->
 <div class="glass-panel rounded-2xl shadow-sm mb-8">
     <div class="flex border-b border-slate-200 dark:border-gray-700 overflow-x-auto no-scrollbar pt-2 px-6">
-        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (!isset($_GET['tab']) || $_GET['tab'] == 'stocks') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 border-transparent hover:text-slate-700' ?>" data-tab="tab-stocks">Ketersediaan Saat Ini</button>
-        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (isset($_GET['tab']) && $_GET['tab'] == 'transactions') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 border-transparent hover:text-slate-700' ?>" data-tab="tab-transactions">Riwayat Transaksi Gudang</button>
-        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (isset($_GET['tab']) && $_GET['tab'] == 'cylinders') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 border-transparent hover:text-slate-700' ?>" data-tab="tab-cylinders">Daftar Jenis Tabung (Katalog)</button>
+        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (!isset($_GET['tab']) || $_GET['tab'] == 'stocks') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 dark:text-gray-400 border-transparent hover:text-slate-700 dark:hover:text-gray-300' ?>" data-tab="tab-stocks">Ketersediaan Saat Ini</button>
+        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (isset($_GET['tab']) && $_GET['tab'] == 'transactions') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 dark:text-gray-400 border-transparent hover:text-slate-700 dark:hover:text-gray-300' ?>" data-tab="tab-transactions">Riwayat Transaksi Gudang</button>
+        <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn <?= (isset($_GET['tab']) && $_GET['tab'] == 'cylinders') ? 'text-primary border-primary dark:text-primary' : 'text-slate-500 dark:text-gray-400 border-transparent hover:text-slate-700 dark:hover:text-gray-300' ?>" data-tab="tab-cylinders">Daftar Jenis Tabung (Katalog)</button>
     </div>
 
     <!-- Tab 1: Current Stock Matrix -->
     <div class="tab-content p-6 <?= (!isset($_GET['tab']) || $_GET['tab'] == 'stocks') ? '' : 'hidden' ?>" id="tab-stocks">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Ketersediaan Saat Ini</h3>
+            <a href="index.php?controller=gudang&action=export_stok" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+                <i class="ph-bold ph-file-csv text-base"></i> Export Excel Stok
+            </a>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php if (empty($warehouseStocks)): ?>
                 <div class="col-span-full text-center text-slate-500 py-12">
@@ -85,8 +89,14 @@
 
     <!-- Tab 2: Transaction History (Refills, Sales, Purchases) -->
     <div class="tab-content p-6 <?= (isset($_GET['tab']) && $_GET['tab'] == 'transactions') ? '' : 'hidden' ?>" id="tab-transactions">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Riwayat Transaksi Gudang</h3>
+            <a href="index.php?controller=gudang&action=export_transaksi" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+                <i class="ph-bold ph-file-csv text-base"></i> Export Excel Riwayat
+            </a>
+        </div>
         <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-            <table class="w-full text-sm text-left whitespace-nowrap">
+            <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                 <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                     <tr>
                         <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal</th>
@@ -151,7 +161,7 @@
             <!-- Cylinder List -->
             <div class="lg:col-span-2">
                 <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-                    <table class="w-full text-sm text-left whitespace-nowrap">
+                    <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                         <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                             <tr>
                                 <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700"># ID</th>
@@ -169,7 +179,7 @@
                                     <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <a href="index.php?controller=gudang&action=edit_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline">Edit</a>
-                                            <a href="index.php?controller=gudang&action=delete_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirm('Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan?');">Hapus</a>
+                                            <a href="index.php?controller=gudang&action=delete_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan?', this.href);">Hapus</a>
                                         </div>
                                     </td>
                                 </tr>

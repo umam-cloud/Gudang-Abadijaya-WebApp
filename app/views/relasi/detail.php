@@ -9,9 +9,7 @@
     <div class="flex items-center gap-2">
         <a href="index.php?controller=relasi&action=index" class="btn-secondary">Kembali</a>
         <a href="index.php?controller=relasi&action=edit&id=<?= $relasi['id'] ?>" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.83 20.013a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-            </svg>
+            <i class="ph-bold ph-pencil text-base"></i>
             Edit Profil
         </a>
     </div>
@@ -29,7 +27,7 @@
                 <h3 class="text-xl font-bold text-slate-800 dark:text-gray-100"><?= htmlspecialchars($relasi['nama_relasi']) ?></h3>
                 <div class="mt-2"><span class="badge badge-info">Kode: <?= htmlspecialchars($relasi['kode_relasi']) ?></span></div>
                 <p class="text-sm text-slate-500 dark:text-gray-400 mt-3 flex items-center justify-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25gA7.5 7.5 0 1119.5 10.5z" /></svg> 
+                    <i class="ph-fill ph-map-pin"></i>
                     <?= htmlspecialchars($relasi['lokasi'] ?: 'Tidak ada alamat') ?>
                 </p>
             </div>
@@ -66,7 +64,7 @@
         <?php if ($last_delivery['hari_sejak_pengiriman'] === null || $last_delivery['hari_sejak_pengiriman'] > 30): ?>
             <div class="glass-panel p-6 rounded-2xl shadow-sm border border-danger/20 bg-danger/5 dark:bg-danger/10">
                 <h4 class="font-bold text-danger flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                    <i class="ph-fill ph-warning text-xl"></i>
                     Evaluasi Repurchase
                 </h4>
                 <p class="text-xs text-danger/80 mb-4">
@@ -105,7 +103,7 @@
                 <h3 class="text-lg font-bold">Audit Saldo Tabung</h3>
             </div>
             <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-                <table class="w-full text-sm text-left whitespace-nowrap">
+                <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                     <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                         <tr>
                             <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis Tabung</th>
@@ -148,13 +146,13 @@
         <div class="glass-panel rounded-2xl shadow-sm mb-8">
             <div class="flex border-b border-slate-200 dark:border-gray-700 overflow-x-auto no-scrollbar pt-2 px-6">
                 <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn text-primary border-primary dark:text-primary" data-tab="tab-deliveries">Riwayat Pengiriman</button>
-                <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn text-slate-500 border-transparent hover:text-slate-700" data-tab="tab-evaluations">Riwayat Evaluasi</button>
+                <button class="px-6 py-4 font-semibold text-sm whitespace-nowrap border-b-2 transition-colors tab-btn text-slate-500 dark:text-gray-400 border-transparent hover:text-slate-700 dark:hover:text-gray-300" data-tab="tab-evaluations">Riwayat Evaluasi</button>
             </div>
             
             <!-- Deliveries Tab -->
             <div class="tab-content p-6 block" id="tab-deliveries">
                 <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-                    <table class="w-full text-sm text-left whitespace-nowrap">
+                    <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                         <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                             <tr>
                                 <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal</th>
@@ -188,7 +186,7 @@
             <!-- Evaluations Tab -->
             <div class="tab-content p-6 hidden" id="tab-evaluations">
                 <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-                    <table class="w-full text-sm text-left whitespace-nowrap">
+                    <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                         <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                             <tr>
                                 <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal Tindakan</th>

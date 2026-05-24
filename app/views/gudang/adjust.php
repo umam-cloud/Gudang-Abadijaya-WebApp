@@ -14,9 +14,7 @@
 <?php if (isset($error)): ?>
     <div class="flex items-center justify-between p-4 mb-8 rounded-xl badge-danger animate-[slideDown_0.4s_ease-out]">
         <div class="flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            <i class="ph-fill ph-warning-circle text-xl"></i>
             <p class="font-medium"><?= htmlspecialchars($error) ?></p>
         </div>
         <button class="hover:opacity-75 transition-opacity alert-close-btn">&times;</button>
@@ -46,16 +44,17 @@
             <div class="form-group md:col-span-1">
                 <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="tipe_transaksi">Tipe Penyesuaian</label>
                 <select id="tipe_transaksi" name="tipe_transaksi" class="form-control" required onchange="toggleTargetSelect()">
-                    <option value="pembelian">Pembelian / Tambah Tabung Baru</option>
+                    <option value="beli_baru">Pembelian / Tambah Tabung Baru</option>
                     <option value="refill">Refill / Isi Ulang Tabung Kosong</option>
-                    <option value="penjualan">Penjualan / Pemusnahan Tabung (-)</option>
+                    <option value="jual_rusak">Penjualan / Pemusnahan Tabung (-)</option>
+                    <option value="koreksi">Koreksi Manual (Catatan: jumlah dapat berupa -/negatif)</option>
                 </select>
                 <span class="form-help block text-xs text-slate-500 mt-2">Pilih sifat dari penyesuaian ini.</span>
             </div>
             
             <div class="form-group md:col-span-1">
                 <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="jumlah">Jumlah (Tabung)</label>
-                <input type="number" id="jumlah" name="jumlah" class="form-control" min="1" value="1" required>
+                <input type="number" id="jumlah" name="jumlah" class="form-control" value="1" required>
             </div>
             
             <div class="form-group md:col-span-1 transition-opacity duration-300" id="target_stok_group">

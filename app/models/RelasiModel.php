@@ -23,6 +23,24 @@ class RelasiModel {
         try {
             $this->db->beginTransaction();
             
+            // Validate and deduct from warehouse
+            $stmt_check = $this->db->prepare("SELECT b.nama_barang, sg.stok_ready FROM stok_gudang sg JOIN barang b ON sg.barang_id = b.id WHERE sg.barang_id = ?");
+            $stmt_update_gudang = $this->db->prepare("UPDATE stok_gudang SET stok_ready = stok_ready - ? WHERE barang_id = ?");
+            $stmt_log = $this->db->prepare("INSERT INTO gudang_transaksi (tanggal, barang_id, tipe_transaksi, jumlah, keterangan) VALUES (CURDATE(), ?, 'koreksi', ?, ?)");
+
+            foreach ($stok_awal_array as $barang_id => $stok_awal) {
+                $stok = (int)$stok_awal;
+                if ($stok > 0) {
+                    $stmt_check->execute([$barang_id]);
+                    $row = $stmt_check->fetch();
+                    if (!$row || $stok > $row['stok_ready']) {
+                        throw new Exception("Stok awal (" . $stok . ") untuk " . ($row ? $row['nama_barang'] : 'Barang ID '.$barang_id) . " melebihi ketersediaan di gudang (" . ($row ? $row['stok_ready'] : 0) . ").");
+                    }
+                    $stmt_update_gudang->execute([$stok, $barang_id]);
+                    $stmt_log->execute([$barang_id, $stok, "Pinjaman stok awal untuk mitra baru: " . $nama_relasi]);
+                }
+            }
+
             $stmt = $this->db->prepare("INSERT INTO relasi (kode_relasi, nama_relasi, lokasi) VALUES (?, ?, ?)");
             $stmt->execute([$kode_relasi, $nama_relasi, $lokasi]);
             $relasi_id = $this->db->lastInsertId();
@@ -30,11 +48,8 @@ class RelasiModel {
             // Insert initial stocks
             $stmt_init = $this->db->prepare("INSERT INTO relasi_stok_awal (relasi_id, barang_id, stok_awal) VALUES (?, ?, ?)");
             foreach ($stok_awal_array as $barang_id => $stok_awal) {
-                if ($stok_awal !== '' && $stok_awal !== null) {
-                    $stmt_init->execute([$relasi_id, $barang_id, (int)$stok_awal]);
-                } else {
-                    $stmt_init->execute([$relasi_id, $barang_id, 0]);
-                }
+                $stok = (int)$stok_awal;
+                $stmt_init->execute([$relasi_id, $barang_id, $stok]);
             }
             
             $this->db->commit();
@@ -49,6 +64,41 @@ class RelasiModel {
         try {
             $this->db->beginTransaction();
             
+            // Fetch old starting stocks to calculate difference
+            $stmt_old_stocks = $this->db->prepare("SELECT barang_id, stok_awal FROM relasi_stok_awal WHERE relasi_id = ?");
+            $stmt_old_stocks->execute([$id]);
+            $old_rows = $stmt_old_stocks->fetchAll();
+            $old_stocks = [];
+            foreach ($old_rows as $row) {
+                $old_stocks[$row['barang_id']] = (int)$row['stok_awal'];
+            }
+
+            $stmt_check = $this->db->prepare("SELECT b.nama_barang, sg.stok_ready FROM stok_gudang sg JOIN barang b ON sg.barang_id = b.id WHERE sg.barang_id = ?");
+            $stmt_update_gudang_kurang = $this->db->prepare("UPDATE stok_gudang SET stok_ready = stok_ready - ? WHERE barang_id = ?");
+            $stmt_update_gudang_tambah = $this->db->prepare("UPDATE stok_gudang SET stok_ready = stok_ready + ? WHERE barang_id = ?");
+            $stmt_log = $this->db->prepare("INSERT INTO gudang_transaksi (tanggal, barang_id, tipe_transaksi, jumlah, keterangan) VALUES (CURDATE(), ?, 'koreksi', ?, ?)");
+
+            // Process differences and validate
+            foreach ($stok_awal_array as $barang_id => $new_stok_raw) {
+                $new_stok = (int)$new_stok_raw;
+                $old_stok = isset($old_stocks[$barang_id]) ? $old_stocks[$barang_id] : 0;
+                $diff = $new_stok - $old_stok;
+
+                if ($diff > 0) { // Needs to take MORE from warehouse
+                    $stmt_check->execute([$barang_id]);
+                    $row = $stmt_check->fetch();
+                    if (!$row || $diff > $row['stok_ready']) {
+                        throw new Exception("Penambahan stok awal (" . $diff . ") untuk " . ($row ? $row['nama_barang'] : 'Barang ID '.$barang_id) . " melebihi ketersediaan di gudang (" . ($row ? $row['stok_ready'] : 0) . ").");
+                    }
+                    $stmt_update_gudang_kurang->execute([$diff, $barang_id]);
+                    $stmt_log->execute([$barang_id, $diff, "Penyesuaian tambah stok awal mitra: " . $nama_relasi]);
+                } else if ($diff < 0) { // Returns SOME to warehouse
+                    $abs_diff = abs($diff);
+                    $stmt_update_gudang_tambah->execute([$abs_diff, $barang_id]);
+                    $stmt_log->execute([$barang_id, $abs_diff, "Penyesuaian kurang stok awal mitra (kembali ke gudang): " . $nama_relasi]);
+                }
+            }
+            
             $stmt = $this->db->prepare("UPDATE relasi SET kode_relasi = ?, nama_relasi = ?, lokasi = ? WHERE id = ?");
             $stmt->execute([$kode_relasi, $nama_relasi, $lokasi, $id]);
             
@@ -58,11 +108,8 @@ class RelasiModel {
             
             $stmt_init = $this->db->prepare("INSERT INTO relasi_stok_awal (relasi_id, barang_id, stok_awal) VALUES (?, ?, ?)");
             foreach ($stok_awal_array as $barang_id => $stok_awal) {
-                if ($stok_awal !== '' && $stok_awal !== null) {
-                    $stmt_init->execute([$id, $barang_id, (int)$stok_awal]);
-                } else {
-                    $stmt_init->execute([$id, $barang_id, 0]);
-                }
+                $stok = (int)$stok_awal;
+                $stmt_init->execute([$id, $barang_id, $stok]);
             }
             
             $this->db->commit();
@@ -74,8 +121,56 @@ class RelasiModel {
     }
 
     public function delete($id) {
-        $stmt = $this->db->prepare("DELETE FROM relasi WHERE id = ?");
-        return $stmt->execute([$id]);
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Dapatkan nama relasi untuk log
+            $relasi = $this->getById($id);
+            if (!$relasi) {
+                $this->db->rollBack();
+                return false;
+            }
+            $nama_mitra = $relasi['nama_relasi'];
+
+            // 2. Hitung stok akhir yang masih ada di mitra
+            $sql = "SELECT 
+                        b.id as barang_id,
+                        (MAX(COALESCE(sa.stok_awal, 0)) + COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)) as stok_akhir
+                    FROM relasi r
+                    CROSS JOIN barang b
+                    LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
+                    LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
+                    WHERE r.id = ?
+                    GROUP BY r.id, b.id";
+            $stmt_stocks = $this->db->prepare($sql);
+            $stmt_stocks->execute([$id]);
+            $stocks = $stmt_stocks->fetchAll();
+
+            // 3. Kembalikan tabung ke gudang (sebagai stok_kosong) dan catat log
+            $stmt_update_gudang = $this->db->prepare("UPDATE stok_gudang SET stok_kosong = stok_kosong + ? WHERE barang_id = ?");
+            $stmt_log = $this->db->prepare("INSERT INTO gudang_transaksi (tanggal, barang_id, tipe_transaksi, jumlah, keterangan) VALUES (CURDATE(), ?, 'koreksi', ?, ?)");
+
+            foreach ($stocks as $stock) {
+                if ($stock['stok_akhir'] > 0) {
+                    $jumlah_kembali = $stock['stok_akhir'];
+                    $barang_id = $stock['barang_id'];
+                    $keterangan = "Pengembalian otomatis dari " . $nama_mitra . " (Mitra Dihapus)";
+
+                    $stmt_update_gudang->execute([$jumlah_kembali, $barang_id]);
+                    $stmt_log->execute([$barang_id, $jumlah_kembali, $keterangan]);
+                }
+            }
+
+            // 4. Hapus mitra (cascade akan menghapus pengiriman, stok awal, evaluasi)
+            $stmt = $this->db->prepare("DELETE FROM relasi WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     public function getStokAwal($relasi_id) {

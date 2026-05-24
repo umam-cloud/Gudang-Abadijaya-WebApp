@@ -18,10 +18,18 @@
 
 <!-- Stock Matrix Table Card -->
 <div class="glass-panel p-6 rounded-2xl shadow-sm">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
-        <h3 class="text-lg font-bold">Matriks Saldo Tabung Relasi</h3>
-        <div class="text-xs text-slate-500 dark:text-gray-400 italic">
-            *Angka menunjukkan jumlah tabung yang dipinjam (MP) di lokasi relasi
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+            <h3 class="text-lg font-bold">Matriks Saldo Tabung Relasi</h3>
+            <div class="text-xs text-slate-500 dark:text-gray-400 italic mt-1">
+                *Angka menunjukkan jumlah tabung yang dipinjam (MP) di lokasi relasi
+            </div>
+        </div>
+        <div class="relative w-full sm:w-72">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="ph-bold ph-magnifying-glass text-slate-400 dark:text-slate-500"></i>
+            </div>
+            <input type="text" id="searchMitra" class="w-full pl-10 py-2.5 text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 focus:border-primary dark:focus:border-primary focus:outline-none ring-0 ring-transparent focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20 rounded-xl text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 transition-colors duration-200 shadow-sm" placeholder="Cari nama atau kode mitra...">
         </div>
     </div>
     
@@ -47,9 +55,9 @@
                     </tr>
                 <?php else: ?>
                     <?php foreach ($clients as $c): ?>
-                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
-                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700"><span class="badge badge-info"><strong><?= htmlspecialchars($c['kode_relasi']) ?></strong></span></td>
-                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
+                        <tr class="mitra-row hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
+                            <td class="mitra-kode px-5 py-4 border-b border-slate-200 dark:border-gray-700"><span class="badge badge-info"><strong><?= htmlspecialchars($c['kode_relasi']) ?></strong></span></td>
+                            <td class="mitra-nama px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
                             
                             <!-- Dynamic Cylinder Stock columns -->
@@ -96,5 +104,29 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchMitra');
+    const tableRows = document.querySelectorAll('tr.mitra-row');
+    
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            
+            tableRows.forEach(row => {
+                const kode = row.querySelector('.mitra-kode').textContent.toLowerCase();
+                const nama = row.querySelector('.mitra-nama').textContent.toLowerCase();
+                
+                if (kode.includes(term) || nama.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

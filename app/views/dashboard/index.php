@@ -8,9 +8,7 @@
     </div>
     <div>
         <a href="index.php?controller=pengiriman&action=create" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <i class="ph-bold ph-plus text-base"></i>
             Catat Pengiriman
         </a>
     </div>
@@ -20,9 +18,7 @@
 <?php if ($activeAlertCount > 0): ?>
     <div class="flex items-center justify-between p-4 mb-8 rounded-xl badge-danger animate-[slideDown_0.4s_ease-out]">
         <div class="flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
+            <i class="ph-fill ph-warning text-xl"></i>
             <p class="font-medium"><strong>Perhatian:</strong> Ada <?= $activeAlertCount ?> mitra/relasi yang sudah lebih dari 30 hari tidak melakukan transaksi atau pengisian ulang tabung!</p>
         </div>
         <a href="index.php?controller=evaluasi&action=index" class="btn-sm bg-white dark:bg-gray-800 border border-danger/30 text-danger hover:bg-danger-bg transition-colors font-bold">Evaluasi Sekarang</a>
@@ -37,9 +33,7 @@
             <div class="text-3xl font-extrabold text-slate-800 dark:text-gray-100"><?= $totalClients ?></div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.005 9.005 0 00-6-6.197V8.5a3.5 3.5 0 117 0v4.023a9.005 9.005 0 00-1 6.197zm-6-6.197a9.005 9.005 0 00-6 6.197V12.523A9.003 9.003 0 0012 8.5v4.023zm-6 6.197a9.003 9.003 0 001 6.197V18.72zm6 0v2.28c0 .248-.202.45-.45.45H10.45a.45.45 0 01-.45-.45v-2.28m6 0v2.28c0 .248-.202.45-.45.45h-1.1c-.248 0-.45-.202-.45-.45v-2.28M6 18.72v2.28c0 .248.202.45.45.45h1.1a.45.45 0 00.45-.45v-2.28" />
-            </svg>
+            <i class="ph-fill ph-users-three text-2xl"></i>
         </div>
     </div>
     
@@ -49,9 +43,7 @@
             <div class="text-3xl font-extrabold text-slate-800 dark:text-gray-100"><?= $totalCylinderTypes ?></div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.283 8.283 0 013 6.3 8.284 8.284 0 003-6.3 8.287 8.287 0 002.962-2.386z" />
-            </svg>
+            <i class="ph ph-cylinder text-2xl"></i>
         </div>
     </div>
     
@@ -61,9 +53,7 @@
             <div class="text-3xl font-extrabold text-danger"><?= $activeAlertCount ?></div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-danger-bg text-danger flex items-center justify-center animate-[pulse_2s_infinite]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
+            <i class="ph-fill ph-warning-circle text-2xl"></i>
         </div>
     </div>
 
@@ -79,9 +69,7 @@
             </div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-success-bg text-success flex items-center justify-center group-hover:scale-110 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <i class="ph-bold ph-check-circle text-2xl"></i>
         </div>
     </div>
 </div>
@@ -105,7 +93,7 @@
                 <h3 class="text-lg font-bold">Detail Gudang</h3>
             </div>
             <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-                <table class="w-full text-sm text-left">
+                <table class="w-full text-xs sm:text-sm text-left">
                     <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                         <tr>
                             <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis</th>
@@ -137,7 +125,7 @@
     </div>
     
     <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
-        <table class="w-full text-sm text-left whitespace-nowrap">
+        <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal</th>
