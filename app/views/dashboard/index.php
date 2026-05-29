@@ -26,7 +26,7 @@
 <?php endif; ?>
 
 <!-- Metrics Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-10">
     <div class="glass-panel p-6 rounded-2xl flex justify-between items-center relative overflow-hidden group hover:-translate-y-1 transition-all shadow-sm before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-primary before:to-success">
         <div>
             <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Mitra Relasi</h3>
@@ -70,6 +70,16 @@
         </div>
         <div class="w-12 h-12 rounded-xl bg-success-bg text-success flex items-center justify-center group-hover:scale-110 transition-transform">
             <i class="ph-bold ph-check-circle text-2xl"></i>
+        </div>
+    </div>
+
+    <div class="glass-panel p-6 rounded-2xl flex justify-between items-center relative overflow-hidden group hover:-translate-y-1 transition-all shadow-sm before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-indigo-500 before:to-purple-500">
+        <div>
+            <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Tabung di Mitra</h3>
+            <div class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400"><?= $totalTabungMitra ?></div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i class="ph-fill ph-storefront text-2xl"></i>
         </div>
     </div>
 </div>
