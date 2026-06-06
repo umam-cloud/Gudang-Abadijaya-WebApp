@@ -38,7 +38,7 @@ class PengirimanController {
         
         // Header Row with Color
         echo '<tr>';
-        $headers = ['Tanggal', 'Kode Relasi', 'Nama Relasi', 'Jenis Tabung', 'Kirim (Isi)', 'Kembali (Kosong)', 'Keterangan'];
+        $headers = ['Tanggal', 'Nama Relasi', 'Jenis Tabung', 'Kirim (Isi)', 'Kembali (Kosong)', 'Keterangan'];
         foreach ($headers as $head) {
             echo '<th style="background-color: #4f46e5; color: #ffffff; font-weight: bold; text-align: center;">' . $head . '</th>';
         }
@@ -49,7 +49,6 @@ class PengirimanController {
             echo '<tr>';
             // mso-number-format:"\@" forces the cell to be treated as Text, preventing the #### date issue
             echo '<td style="mso-number-format:\'\@\';">' . date('d-m-Y', strtotime($d['tanggal'])) . '</td>';
-            echo '<td>' . htmlspecialchars($d['kode_relasi']) . '</td>';
             echo '<td>' . htmlspecialchars($d['nama_relasi']) . '</td>';
             echo '<td>' . htmlspecialchars($d['nama_barang']) . '</td>';
             echo '<td style="text-align: right;">' . $d['jumlah_masuk'] . '</td>';

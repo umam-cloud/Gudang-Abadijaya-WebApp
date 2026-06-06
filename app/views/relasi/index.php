@@ -29,7 +29,7 @@
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i class="ph-bold ph-magnifying-glass text-slate-400 dark:text-slate-500"></i>
             </div>
-            <input type="text" id="searchMitra" class="w-full pl-10 py-2.5 text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 focus:border-primary dark:focus:border-primary focus:outline-none ring-0 ring-transparent focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20 rounded-xl text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 transition-colors duration-200 shadow-sm" placeholder="Cari nama atau kode mitra...">
+            <input type="text" id="searchMitra" class="w-full pl-10 py-2.5 text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 focus:border-primary dark:focus:border-primary focus:outline-none ring-0 ring-transparent focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20 rounded-xl text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 transition-colors duration-200 shadow-sm" placeholder="Cari nama mitra...">
         </div>
     </div>
     <?php 
@@ -50,9 +50,14 @@
     }
     ?>
     <?php if (!empty($clients)): ?>
-    <div class="inline-flex items-center gap-3 mb-6 bg-indigo-50/50 dark:bg-indigo-500/10 px-5 py-3 rounded-xl border border-primary/20 shadow-sm">
-        <span class="text-sm font-bold text-slate-700 dark:text-gray-300">TOTAL SELURUH TABUNG BEREDAR:</span>
-        <span class="text-xl font-extrabold text-primary"><?= $grandTotal ?></span>
+    <div class="flex flex-wrap items-center gap-3 mb-6 bg-indigo-50/50 dark:bg-indigo-500/10 px-5 py-3 rounded-xl border border-primary/20 shadow-sm">
+        <span class="text-sm font-bold text-slate-700 dark:text-gray-300 mr-2">TOTAL TABUNG BEREDAR:</span>
+        <?php foreach ($barangList as $b): ?>
+            <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:-translate-y-0.5 transition-transform">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400"><?= htmlspecialchars($b['nama_barang']) ?></span>
+                <span class="text-sm font-extrabold text-primary"><?= $totals[$b['id']] ?></span>
+            </div>
+        <?php endforeach; ?>
     </div>
     <?php endif; ?>
     
@@ -60,7 +65,6 @@
         <table class="w-full text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
-                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Kode</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Lokasi</th>
                     <?php foreach ($barangList as $b): ?>
@@ -79,7 +83,6 @@
                 <?php else: ?>
                     <?php foreach ($clients as $c): ?>
                         <tr class="mitra-row hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
-                            <td class="mitra-kode px-5 py-4 border-b border-slate-200 dark:border-gray-700"><span class="badge badge-info"><strong><?= htmlspecialchars($c['kode_relasi']) ?></strong></span></td>
                             <td class="mitra-nama px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
                             
@@ -138,10 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const term = e.target.value.toLowerCase();
             
             tableRows.forEach(row => {
-                const kode = row.querySelector('.mitra-kode').textContent.toLowerCase();
                 const nama = row.querySelector('.mitra-nama').textContent.toLowerCase();
                 
-                if (kode.includes(term) || nama.includes(term)) {
+                if (nama.includes(term)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';

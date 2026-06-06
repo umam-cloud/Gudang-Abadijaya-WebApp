@@ -15,7 +15,6 @@ class RelasiController {
         $barangList = $barangModel->getAll();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode_relasi = trim($_POST['kode_relasi']);
             $nama_relasi = trim($_POST['nama_relasi']);
             $lokasi = trim($_POST['lokasi']);
             
@@ -28,7 +27,7 @@ class RelasiController {
 
             $relasiModel = new RelasiModel();
             try {
-                $relasiModel->create($kode_relasi, $nama_relasi, $lokasi, $stok_awal);
+                $relasiModel->create($nama_relasi, $lokasi, $stok_awal);
                 header("Location: index.php?controller=relasi&action=index&msg=success_create");
                 exit;
             } catch (Exception $e) {
@@ -54,7 +53,6 @@ class RelasiController {
         $stokAwal = $relasiModel->getStokAwal($id);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $kode_relasi = trim($_POST['kode_relasi']);
             $nama_relasi = trim($_POST['nama_relasi']);
             $lokasi = trim($_POST['lokasi']);
             
@@ -66,7 +64,7 @@ class RelasiController {
             }
 
             try {
-                $relasiModel->update($id, $kode_relasi, $nama_relasi, $lokasi, $stok_awal);
+                $relasiModel->update($id, $nama_relasi, $lokasi, $stok_awal);
                 header("Location: index.php?controller=relasi&action=index&msg=success_update");
                 exit;
             } catch (Exception $e) {

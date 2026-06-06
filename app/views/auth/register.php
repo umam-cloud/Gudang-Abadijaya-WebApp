@@ -60,7 +60,7 @@
         <div class="text-center mb-8">
             <i class="ph ph-cylinder text-[48px] mx-auto mb-4 text-primary drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] block text-center"></i>
             <h1 class="text-3xl font-extrabold bg-gradient-to-br from-primary to-cyan-500 bg-clip-text text-transparent font-display mb-2">Buat Akun Baru</h1>
-            <p class="text-slate-500 dark:text-gray-400 text-sm">Daftar sebagai pengguna sistem TabungFlow</p>
+            <p class="text-slate-500 dark:text-gray-400 text-sm">Daftar sebagai pengguna sistem AbadiGas</p>
         </div>
 
         <?php if (isset($error)): ?>

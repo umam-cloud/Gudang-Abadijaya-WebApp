@@ -25,7 +25,6 @@
             
             <div class="text-center p-6 border-b border-slate-200 dark:border-gray-700">
                 <h3 class="text-xl font-bold text-slate-800 dark:text-gray-100"><?= htmlspecialchars($relasi['nama_relasi']) ?></h3>
-                <div class="mt-2"><span class="badge badge-info">Kode: <?= htmlspecialchars($relasi['kode_relasi']) ?></span></div>
                 <p class="text-sm text-slate-500 dark:text-gray-400 mt-3 flex items-center justify-center gap-1">
                     <i class="ph-fill ph-map-pin"></i>
                     <?= htmlspecialchars($relasi['lokasi'] ?: 'Tidak ada alamat') ?>

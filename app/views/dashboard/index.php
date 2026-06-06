@@ -57,6 +57,38 @@
         </div>
     </div>
 
+    <div class="glass-panel p-6 rounded-2xl flex justify-between items-center relative z-10 hover:z-50 overflow-visible group hover:-translate-y-1 transition-all shadow-sm before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:rounded-t-2xl before:bg-gradient-to-r before:from-indigo-500 before:to-purple-500 cursor-pointer">
+        <div>
+            <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2 flex items-center gap-1">
+                Tabung di Mitra
+                <i class="ph-bold ph-info text-indigo-400 text-sm"></i>
+            </h3>
+            <div class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400"><?= $totalTabungMitra ?></div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
+            <i class="ph-fill ph-storefront text-2xl"></i>
+        </div>
+
+        <!-- Hover Dropdown / Tooltip -->
+        <div class="absolute z-50 left-0 top-full mt-2 w-full sm:w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-slate-100 dark:border-gray-700 p-4 relative before:absolute before:-top-2 before:left-6 before:w-4 before:h-4 before:bg-white dark:before:bg-gray-800 before:border-l before:border-t before:border-slate-100 dark:before:border-gray-700 before:rotate-45">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-100 dark:border-gray-700 pb-2 relative z-10">Rincian per Tabung</h4>
+                <div class="space-y-2 relative z-10">
+                    <?php if (empty($tabungMitraDetail)): ?>
+                        <div class="text-sm text-slate-500 text-center italic">Belum ada data</div>
+                    <?php else: ?>
+                        <?php foreach ($tabungMitraDetail as $nama => $jumlah): ?>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-600 dark:text-gray-300 font-medium truncate pr-2"><?= htmlspecialchars($nama) ?></span>
+                            <span class="font-bold text-indigo-600 dark:text-indigo-400"><?= $jumlah ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="glass-panel p-6 rounded-2xl flex justify-between items-center relative overflow-hidden group hover:-translate-y-1 transition-all shadow-sm before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-success">
         <div>
             <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Total Ready</h3>
@@ -73,15 +105,6 @@
         </div>
     </div>
 
-    <div class="glass-panel p-6 rounded-2xl flex justify-between items-center relative overflow-hidden group hover:-translate-y-1 transition-all shadow-sm before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-indigo-500 before:to-purple-500">
-        <div>
-            <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Tabung di Mitra</h3>
-            <div class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400"><?= $totalTabungMitra ?></div>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <i class="ph-fill ph-storefront text-2xl"></i>
-        </div>
-    </div>
 </div>
 
 <!-- Charts & Stock Status -->
@@ -156,7 +179,6 @@
                         <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5">
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= date('d-m-Y', strtotime($d['tanggal'])) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200">
-                                <strong>[<?= htmlspecialchars($d['kode_relasi']) ?>]</strong> 
                                 <?= htmlspecialchars($d['nama_relasi']) ?>
                             </td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($d['nama_barang']) ?></td>

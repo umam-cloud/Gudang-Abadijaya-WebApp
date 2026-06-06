@@ -9,7 +9,7 @@ class RelasiModel {
     }
 
     public function getAll() {
-        $stmt = $this->db->query("SELECT * FROM relasi ORDER BY kode_relasi ASC");
+        $stmt = $this->db->query("SELECT * FROM relasi ORDER BY nama_relasi ASC");
         return $stmt->fetchAll();
     }
 
@@ -19,7 +19,7 @@ class RelasiModel {
         return $stmt->fetch();
     }
 
-    public function create($kode_relasi, $nama_relasi, $lokasi, $stok_awal_array = []) {
+    public function create($nama_relasi, $lokasi, $stok_awal_array = []) {
         try {
             $this->db->beginTransaction();
             
@@ -41,8 +41,8 @@ class RelasiModel {
                 }
             }
 
-            $stmt = $this->db->prepare("INSERT INTO relasi (kode_relasi, nama_relasi, lokasi) VALUES (?, ?, ?)");
-            $stmt->execute([$kode_relasi, $nama_relasi, $lokasi]);
+            $stmt = $this->db->prepare("INSERT INTO relasi (nama_relasi, lokasi) VALUES (?, ?)");
+            $stmt->execute([$nama_relasi, $lokasi]);
             $relasi_id = $this->db->lastInsertId();
             
             // Insert initial stocks
@@ -60,7 +60,7 @@ class RelasiModel {
         }
     }
 
-    public function update($id, $kode_relasi, $nama_relasi, $lokasi, $stok_awal_array = []) {
+    public function update($id, $nama_relasi, $lokasi, $stok_awal_array = []) {
         try {
             $this->db->beginTransaction();
             
@@ -99,8 +99,8 @@ class RelasiModel {
                 }
             }
             
-            $stmt = $this->db->prepare("UPDATE relasi SET kode_relasi = ?, nama_relasi = ?, lokasi = ? WHERE id = ?");
-            $stmt->execute([$kode_relasi, $nama_relasi, $lokasi, $id]);
+            $stmt = $this->db->prepare("UPDATE relasi SET nama_relasi = ?, lokasi = ? WHERE id = ?");
+            $stmt->execute([$nama_relasi, $lokasi, $id]);
             
             // Clear and rewrite initial stocks
             $stmt_del = $this->db->prepare("DELETE FROM relasi_stok_awal WHERE relasi_id = ?");
@@ -191,7 +191,6 @@ class RelasiModel {
     public function getAllWithStocks() {
         $sql = "SELECT 
                     r.id as relasi_id,
-                    r.kode_relasi,
                     r.nama_relasi,
                     r.lokasi,
                     b.id as barang_id,
@@ -205,7 +204,7 @@ class RelasiModel {
                 LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
                 LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
                 GROUP BY r.id, b.id
-                ORDER BY r.kode_relasi ASC, b.nama_barang ASC";
+                ORDER BY r.nama_relasi ASC, b.nama_barang ASC";
         
         $stmt = $this->db->query($sql);
         $raw = $stmt->fetchAll();
@@ -217,7 +216,6 @@ class RelasiModel {
             if (!isset($grouped[$r_id])) {
                 $grouped[$r_id] = [
                     'id' => $r_id,
-                    'kode_relasi' => $row['kode_relasi'],
                     'nama_relasi' => $row['nama_relasi'],
                     'lokasi' => $row['lokasi'],
                     'stocks' => []
@@ -241,7 +239,6 @@ class RelasiModel {
     public function getInactivityAlerts() {
         $sql = "SELECT 
                     r.id as relasi_id,
-                    r.kode_relasi,
                     r.nama_relasi,
                     r.lokasi,
                     MAX(p.tanggal) as tanggal_terakhir,
@@ -265,7 +262,7 @@ class RelasiModel {
                     ) e2 ON e1.relasi_id = e2.relasi_id AND e1.created_at = e2.max_created
                 ) ev ON ev.relasi_id = r.id
                 GROUP BY r.id
-                ORDER BY hari_sejak_pengiriman DESC, r.kode_relasi ASC";
+                ORDER BY hari_sejak_pengiriman DESC, r.nama_relasi ASC";
         
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();

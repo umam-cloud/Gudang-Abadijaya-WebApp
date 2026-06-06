@@ -35,7 +35,6 @@
         <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
-                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Kode Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi / Mitra</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Lokasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tgl Pengiriman Terakhir</th>
@@ -46,7 +45,7 @@
             <tbody>
                 <?php if (empty($inactiveClients)): ?>
                     <tr>
-                        <td colspan="6" class="px-5 py-12 text-center text-slate-500">
+                        <td colspan="5" class="px-5 py-12 text-center text-slate-500">
                             <i class="ph-bold ph-check-circle text-[48px] mx-auto mb-4 opacity-50 block text-center"></i>
                             Hebat! Semua mitra aktif bertransaksi dalam 30 hari terakhir.
                         </td>
@@ -54,7 +53,6 @@
                 <?php else: ?>
                     <?php foreach ($inactiveClients as $c): ?>
                         <tr class="bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700"><span class="badge badge-info"><strong><?= htmlspecialchars($c['kode_relasi']) ?></strong></span></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200 font-bold"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200">

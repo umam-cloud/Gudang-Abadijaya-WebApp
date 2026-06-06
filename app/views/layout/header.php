@@ -138,7 +138,7 @@ $activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboar
             <div class="flex items-center gap-3 mb-12">
                 <!-- Gas Cylinder Logo Icon -->
                 <i class="ph ph-cylinder text-primary drop-shadow-[0_0_8px_rgba(79,70,229,0.15)] text-[32px]"></i>
-                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-br from-primary to-success bg-clip-text text-transparent">TabungFlow</h1>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-br from-primary to-success bg-clip-text text-transparent">AbadiGas</h1>
             </div>
             
             <nav class="flex-grow">

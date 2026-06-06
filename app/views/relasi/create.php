@@ -23,17 +23,9 @@
 
 <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-4xl">
     <form action="index.php?controller=relasi&action=create" method="POST">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="form-group">
-                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="kode_relasi">Kode Relasi</label>
-                <input type="text" id="kode_relasi" name="kode_relasi" class="form-control" placeholder="Contoh: H-J01, H-01MR" required>
-                <span class="form-help block text-xs text-slate-500 mt-2">Kode unik pembeda relasi</span>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="nama_relasi">Nama Relasi / Toko</label>
-                <input type="text" id="nama_relasi" name="nama_relasi" class="form-control" placeholder="Contoh: BUDIMAN ANEKA TEKHNIK" required>
-            </div>
+        <div class="form-group">
+            <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="nama_relasi">Nama Relasi / Toko</label>
+            <input type="text" id="nama_relasi" name="nama_relasi" class="form-control" placeholder="Contoh: BUDIMAN ANEKA TEKHNIK" required>
         </div>
 
         <div class="form-group mt-6">

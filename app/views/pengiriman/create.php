@@ -34,7 +34,7 @@
                 <select id="relasi_id" name="relasi_id" class="form-control choices-select" required>
                     <option value="" disabled selected>-- Pilih Mitra --</option>
                     <?php foreach ($clients as $c): ?>
-                        <option value="<?= $c['id'] ?>">[<?= htmlspecialchars($c['kode_relasi']) ?>] <?= htmlspecialchars($c['nama_relasi']) ?></option>
+                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['nama_relasi']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

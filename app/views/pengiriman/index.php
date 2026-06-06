@@ -29,7 +29,6 @@
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tanggal</th>
-                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Kode Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis Tabung</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Kirim (Isi)</th>
@@ -41,7 +40,7 @@
             <tbody>
                 <?php if (empty($deliveries)): ?>
                     <tr>
-                        <td colspan="8" class="px-5 py-8 text-center text-slate-500">
+                        <td colspan="7" class="px-5 py-8 text-center text-slate-500">
                             Belum ada riwayat transaksi pengiriman. Klik tombol di atas untuk mencatat pengiriman.
                         </td>
                     </tr>
@@ -49,7 +48,6 @@
                     <?php foreach ($deliveries as $d): ?>
                         <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= date('d-m-Y', strtotime($d['tanggal'])) ?></td>
-                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700"><span class="badge badge-info"><strong><?= htmlspecialchars($d['kode_relasi']) ?></strong></span></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($d['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($d['nama_barang']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-success font-bold">+<?= $d['jumlah_masuk'] ?></td>

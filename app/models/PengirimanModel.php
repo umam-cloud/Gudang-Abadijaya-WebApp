@@ -9,7 +9,7 @@ class PengirimanModel {
     }
 
     public function getAll($limit = 100, $offset = 0) {
-        $sql = "SELECT p.*, r.kode_relasi, r.nama_relasi, b.nama_barang 
+        $sql = "SELECT p.*, r.nama_relasi, b.nama_barang 
                 FROM pengiriman p
                 JOIN relasi r ON p.relasi_id = r.id
                 JOIN barang b ON p.barang_id = b.id

@@ -35,7 +35,7 @@
                     <option value="" disabled>-- Pilih Mitra --</option>
                     <?php foreach ($clients as $c): ?>
                         <option value="<?= $c['id'] ?>" <?= $pengiriman['relasi_id'] == $c['id'] ? 'selected' : '' ?>>
-                            [<?= htmlspecialchars($c['kode_relasi']) ?>] <?= htmlspecialchars($c['nama_relasi']) ?>
+                            <?= htmlspecialchars($c['nama_relasi']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
