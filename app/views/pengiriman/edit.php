@@ -23,10 +23,15 @@
 
 <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-4xl">
     <form action="index.php?controller=pengiriman&action=edit&id=<?= $pengiriman['id'] ?>" method="POST">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="form-group">
                 <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="tanggal">Tanggal Pengiriman</label>
                 <input type="date" id="tanggal" name="tanggal" class="form-control" value="<?= $pengiriman['tanggal'] ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="no_surat_jalan">No. Surat Jalan / Nota</label>
+                <input type="text" id="no_surat_jalan" name="no_surat_jalan" class="form-control" value="<?= htmlspecialchars($pengiriman['no_surat_jalan'] ?? '') ?>" placeholder="Contoh: SJ-20260609-001">
             </div>
 
             <div class="form-group">
@@ -55,13 +60,25 @@
             </div>
 
             <div class="form-group md:col-span-1">
-                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="jumlah_masuk">KIRIM / ISI</label>
-                <input type="number" id="jumlah_masuk" name="jumlah_masuk" class="form-control border-success focus:border-success focus:ring-success/20 text-success font-bold" min="0" value="<?= $pengiriman['jumlah_masuk'] ?>" required>
+                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="jumlah_masuk">KIRIM / KELUAR</label>
+                <div class="flex gap-2">
+                    <input type="number" id="jumlah_masuk" name="jumlah_masuk" class="form-control border-success focus:border-success focus:ring-success/20 text-success font-bold" min="0" value="<?= $pengiriman['jumlah_masuk'] ?>" required>
+                    <select name="kondisi_kirim" class="form-control" style="width: 100px;">
+                        <option value="Isi" <?= $pengiriman['kondisi_kirim'] == 'Isi' ? 'selected' : '' ?>>Isi</option>
+                        <option value="Kosong" <?= $pengiriman['kondisi_kirim'] == 'Kosong' ? 'selected' : '' ?>>Kosong</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group md:col-span-1">
-                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="jumlah_keluar">KEMBALI / KOSONG</label>
-                <input type="number" id="jumlah_keluar" name="jumlah_keluar" class="form-control border-warning focus:border-warning focus:ring-warning/20 text-warning font-bold" min="0" value="<?= $pengiriman['jumlah_keluar'] ?>" required>
+                <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="jumlah_keluar">KEMBALI / MASUK</label>
+                <div class="flex gap-2">
+                    <input type="number" id="jumlah_keluar" name="jumlah_keluar" class="form-control border-warning focus:border-warning focus:ring-warning/20 text-warning font-bold" min="0" value="<?= $pengiriman['jumlah_keluar'] ?>" required>
+                    <select name="kondisi_kembali" class="form-control" style="width: 100px;">
+                        <option value="Kosong" <?= $pengiriman['kondisi_kembali'] == 'Kosong' ? 'selected' : '' ?>>Kosong</option>
+                        <option value="Isi" <?= $pengiriman['kondisi_kembali'] == 'Isi' ? 'selected' : '' ?>>Isi</option>
+                    </select>
+                </div>
             </div>
         </div>
 

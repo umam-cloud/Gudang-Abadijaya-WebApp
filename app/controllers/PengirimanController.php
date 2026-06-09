@@ -38,7 +38,7 @@ class PengirimanController {
         
         // Header Row with Color
         echo '<tr>';
-        $headers = ['Tanggal', 'Nama Relasi', 'Jenis Tabung', 'Kirim (Isi)', 'Kembali (Kosong)', 'Keterangan'];
+        $headers = ['Tanggal', 'No. Surat Jalan', 'Nama Relasi', 'Jenis Tabung', 'Kirim (Isi)', 'Kembali (Kosong)', 'Keterangan'];
         foreach ($headers as $head) {
             echo '<th style="background-color: #4f46e5; color: #ffffff; font-weight: bold; text-align: center;">' . $head . '</th>';
         }
@@ -49,10 +49,11 @@ class PengirimanController {
             echo '<tr>';
             // mso-number-format:"\@" forces the cell to be treated as Text, preventing the #### date issue
             echo '<td style="mso-number-format:\'\@\';">' . date('d-m-Y', strtotime($d['tanggal'])) . '</td>';
+            echo '<td>' . htmlspecialchars($d['no_surat_jalan'] ?? '') . '</td>';
             echo '<td>' . htmlspecialchars($d['nama_relasi']) . '</td>';
             echo '<td>' . htmlspecialchars($d['nama_barang']) . '</td>';
-            echo '<td style="text-align: right;">' . $d['jumlah_masuk'] . '</td>';
-            echo '<td style="text-align: right;">' . $d['jumlah_keluar'] . '</td>';
+            echo '<td style="text-align: right;">' . $d['jumlah_masuk'] . ' (' . htmlspecialchars($d['kondisi_kirim']) . ')</td>';
+            echo '<td style="text-align: right;">' . $d['jumlah_keluar'] . ' (' . htmlspecialchars($d['kondisi_kembali']) . ')</td>';
             echo '<td>' . htmlspecialchars($d['keterangan']) . '</td>';
             echo '</tr>';
         }
@@ -71,52 +72,108 @@ class PengirimanController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tanggal = $_POST['tanggal'];
+            $no_surat_jalan = trim($_POST['no_surat_jalan'] ?? '');
             $relasi_id = (int)$_POST['relasi_id'];
-            $barang_id = (int)$_POST['barang_id'];
-            $jumlah_masuk = (int)$_POST['jumlah_masuk'];
-            $jumlah_keluar = (int)$_POST['jumlah_keluar'];
             $keterangan = trim($_POST['keterangan']);
-
-            $pengirimanModel = new PengirimanModel();
-            $pengirimanModel = new PengirimanModel();
             
-            // Validasi Stok Gudang & Mitra
+            $barang_ids = $_POST['barang_id'] ?? [];
+            $jumlah_masuks = $_POST['jumlah_masuk'] ?? [];
+            $kondisi_kirims = $_POST['kondisi_kirim'] ?? [];
+            $jumlah_keluars = $_POST['jumlah_keluar'] ?? [];
+            $kondisi_kembalis = $_POST['kondisi_kembali'] ?? [];
+
             $db = (new Database())->getConnection();
             
-            if ($jumlah_masuk > 0) {
-                $stmt_gudang = $db->prepare("SELECT stok_ready FROM stok_gudang WHERE barang_id = ?");
-                $stmt_gudang->execute([$barang_id]);
-                $stok_gudang = $stmt_gudang->fetch();
+            // 1. Accumulate totals per barang_id to validate stock
+            $totals = [];
+            $valid_items = [];
+            for ($i = 0; $i < count($barang_ids); $i++) {
+                $b_id = (int)$barang_ids[$i];
+                $j_m = (int)($jumlah_masuks[$i] ?? 0);
+                $k_kirim = trim($kondisi_kirims[$i] ?? 'Isi');
+                $j_k = (int)($jumlah_keluars[$i] ?? 0);
+                $k_kembali = trim($kondisi_kembalis[$i] ?? 'Kosong');
                 
-                if (!$stok_gudang || $jumlah_masuk > $stok_gudang['stok_ready']) {
-                    $error = "Gagal: Jumlah kirim (" . $jumlah_masuk . ") melebihi stok ready di gudang (" . ($stok_gudang ? $stok_gudang['stok_ready'] : 0) . ").";
+                if ($b_id <= 0 || ($j_m == 0 && $j_k == 0)) continue;
+
+                if (!isset($totals[$b_id])) {
+                    $totals[$b_id] = [
+                        'masuk_isi' => 0, 'masuk_kosong' => 0,
+                        'keluar_isi' => 0, 'keluar_kosong' => 0
+                    ];
                 }
-            }
-            
-            if (!isset($error) && $jumlah_keluar > 0) {
-                $sql_stok = "SELECT (MAX(COALESCE(sa.stok_awal, 0)) + COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)) as stok_akhir
-                             FROM relasi r
-                             CROSS JOIN barang b
-                             LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
-                             LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
-                             WHERE r.id = ? AND b.id = ? GROUP BY r.id, b.id";
-                $stmt_relasi = $db->prepare($sql_stok);
-                $stmt_relasi->execute([$relasi_id, $barang_id]);
-                $stok_relasi = $stmt_relasi->fetch();
-                $stok_akhir = $stok_relasi ? $stok_relasi['stok_akhir'] : 0;
+                if ($k_kirim == 'Isi') $totals[$b_id]['masuk_isi'] += $j_m;
+                elseif ($k_kirim == 'Kosong') $totals[$b_id]['masuk_kosong'] += $j_m;
                 
-                if ($jumlah_keluar > $stok_akhir) {
-                    $error = "Gagal: Jumlah kembali (" . $jumlah_keluar . ") melebihi stok tabung yang sedang dipegang mitra (" . $stok_akhir . ").";
+                if ($k_kembali == 'Kosong') $totals[$b_id]['keluar_kosong'] += $j_k;
+                elseif ($k_kembali == 'Isi') $totals[$b_id]['keluar_isi'] += $j_k;
+                
+                $valid_items[] = [
+                    'barang_id' => $b_id,
+                    'jumlah_masuk' => $j_m,
+                    'kondisi_kirim' => $k_kirim,
+                    'jumlah_keluar' => $j_k,
+                    'kondisi_kembali' => $k_kembali
+                ];
+            }
+
+            if (empty($valid_items)) {
+                $error = "Gagal: Harus ada minimal 1 tabung dengan jumlah kirim atau kembali.";
+            }
+
+            // 2. Validate all totals
+            if (!isset($error)) {
+                foreach ($totals as $b_id => $qty) {
+                    if ($qty['masuk_isi'] > 0 || $qty['masuk_kosong'] > 0) {
+                        $stmt_gudang = $db->prepare("SELECT stok_ready, stok_kosong FROM stok_gudang WHERE barang_id = ?");
+                        $stmt_gudang->execute([$b_id]);
+                        $stok_gudang = $stmt_gudang->fetch();
+                        
+                        if ($qty['masuk_isi'] > 0 && (!$stok_gudang || $qty['masuk_isi'] > $stok_gudang['stok_ready'])) {
+                            $error = "Gagal: Total Kirim Isi (" . $qty['masuk_isi'] . ") melebihi stok ready di gudang (" . ($stok_gudang ? $stok_gudang['stok_ready'] : 0) . ").";
+                            break;
+                        }
+                        if ($qty['masuk_kosong'] > 0 && (!$stok_gudang || $qty['masuk_kosong'] > $stok_gudang['stok_kosong'])) {
+                            $error = "Gagal: Total Kirim Kosong (" . $qty['masuk_kosong'] . ") melebihi stok kosong di gudang (" . ($stok_gudang ? $stok_gudang['stok_kosong'] : 0) . ").";
+                            break;
+                        }
+                    }
+                    
+                    $total_keluar = $qty['keluar_isi'] + $qty['keluar_kosong'];
+                    if ($total_keluar > 0) {
+                        $sql_stok = "SELECT (MAX(COALESCE(sa.stok_awal, 0)) + COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)) as stok_akhir
+                                     FROM relasi r
+                                     CROSS JOIN barang b
+                                     LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
+                                     LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
+                                     WHERE r.id = ? AND b.id = ? GROUP BY r.id, b.id";
+                        $stmt_relasi = $db->prepare($sql_stok);
+                        $stmt_relasi->execute([$relasi_id, $b_id]);
+                        $stok_relasi = $stmt_relasi->fetch();
+                        $stok_akhir = $stok_relasi ? $stok_relasi['stok_akhir'] : 0;
+                        
+                        if ($total_keluar > $stok_akhir) {
+                            $error = "Gagal: Total Kembali (" . $total_keluar . ") melebihi stok fisik tabung yang sedang dipegang mitra (" . $stok_akhir . ").";
+                            break;
+                        }
+                    }
                 }
             }
 
             if (!isset($error)) {
                 try {
-                    // Perform delivery update
-                    $pengirimanModel->create($tanggal, $relasi_id, $barang_id, $jumlah_masuk, $jumlah_keluar, $keterangan);
+                    $db->beginTransaction();
+                    $pengirimanModel = new PengirimanModel();
+                    
+                    foreach ($valid_items as $item) {
+                        $pengirimanModel->create($tanggal, $no_surat_jalan, $relasi_id, $item['barang_id'], $item['jumlah_masuk'], $item['kondisi_kirim'], $item['jumlah_keluar'], $item['kondisi_kembali'], $keterangan);
+                    }
+                    
+                    $db->commit();
                     header("Location: index.php?controller=pengiriman&action=index&msg=success_create");
                     exit;
                 } catch (Exception $e) {
+                    $db->rollBack();
                     $error = "Gagal mencatat pengiriman: " . $e->getMessage();
                 }
             }
@@ -142,27 +199,39 @@ class PengirimanController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tanggal = $_POST['tanggal'];
+            $no_surat_jalan = trim($_POST['no_surat_jalan'] ?? '');
             $relasi_id = (int)$_POST['relasi_id'];
             $barang_id = (int)$_POST['barang_id'];
             $jumlah_masuk = (int)$_POST['jumlah_masuk'];
+            $kondisi_kirim = trim($_POST['kondisi_kirim'] ?? 'Isi');
             $jumlah_keluar = (int)$_POST['jumlah_keluar'];
+            $kondisi_kembali = trim($_POST['kondisi_kembali'] ?? 'Kosong');
             $keterangan = trim($_POST['keterangan']);
 
             $db = (new Database())->getConnection();
             
             // Baseline untuk Gudang
             if ($jumlah_masuk > 0) {
-                $stmt_gudang = $db->prepare("SELECT stok_ready FROM stok_gudang WHERE barang_id = ?");
+                $stmt_gudang = $db->prepare("SELECT stok_ready, stok_kosong FROM stok_gudang WHERE barang_id = ?");
                 $stmt_gudang->execute([$barang_id]);
                 $stok_gudang = $stmt_gudang->fetch();
                 
-                $baseline_ready = $stok_gudang ? $stok_gudang['stok_ready'] : 0;
-                if ($pengiriman['barang_id'] == $barang_id) {
-                    $baseline_ready += $pengiriman['jumlah_masuk'];
-                }
-                
-                if ($jumlah_masuk > $baseline_ready) {
-                    $error = "Gagal: Jumlah kirim (" . $jumlah_masuk . ") melebihi stok ready di gudang (" . $baseline_ready . ").";
+                if ($kondisi_kirim == 'Isi') {
+                    $baseline_ready = $stok_gudang ? $stok_gudang['stok_ready'] : 0;
+                    if ($pengiriman['barang_id'] == $barang_id && $pengiriman['kondisi_kirim'] == 'Isi') {
+                        $baseline_ready += $pengiriman['jumlah_masuk'];
+                    }
+                    if ($jumlah_masuk > $baseline_ready) {
+                        $error = "Gagal: Jumlah kirim (" . $jumlah_masuk . ") melebihi stok ready di gudang (" . $baseline_ready . ").";
+                    }
+                } else if ($kondisi_kirim == 'Kosong') {
+                    $baseline_kosong = $stok_gudang ? $stok_gudang['stok_kosong'] : 0;
+                    if ($pengiriman['barang_id'] == $barang_id && $pengiriman['kondisi_kirim'] == 'Kosong') {
+                        $baseline_kosong += $pengiriman['jumlah_masuk'];
+                    }
+                    if ($jumlah_masuk > $baseline_kosong) {
+                        $error = "Gagal: Jumlah kirim kosong (" . $jumlah_masuk . ") melebihi stok kosong di gudang (" . $baseline_kosong . ").";
+                    }
                 }
             }
             
@@ -192,7 +261,7 @@ class PengirimanController {
 
             if (!isset($error)) {
                 try {
-                    $pengirimanModel->update($id, $tanggal, $relasi_id, $barang_id, $jumlah_masuk, $jumlah_keluar, $keterangan);
+                    $pengirimanModel->update($id, $tanggal, $no_surat_jalan, $relasi_id, $barang_id, $jumlah_masuk, $kondisi_kirim, $jumlah_keluar, $kondisi_kembali, $keterangan);
                     header("Location: index.php?controller=pengiriman&action=index&msg=success_update");
                     exit;
                 } catch (Exception $e) {
