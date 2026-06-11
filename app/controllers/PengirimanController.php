@@ -152,10 +152,11 @@ class PengirimanController {
                         $stok_relasi = $stmt_relasi->fetch();
                         $stok_akhir = $stok_relasi ? $stok_relasi['stok_akhir'] : 0;
                         
-                        if ($total_keluar > $stok_akhir) {
-                            $error = "Gagal: Total Kembali (" . $total_keluar . ") melebihi stok fisik tabung yang sedang dipegang mitra (" . $stok_akhir . ").";
-                            break;
-                        }
+                        // Validasi stok akhir dikomentari agar stok minus diperbolehkan
+                        // if ($total_keluar > $stok_akhir) {
+                        //     $error = "Gagal: Total Kembali (" . $total_keluar . ") melebihi stok fisik tabung yang sedang dipegang mitra (" . $stok_akhir . ").";
+                        //     break;
+                        // }
                     }
                 }
             }
@@ -170,13 +171,29 @@ class PengirimanController {
                     }
                     
                     $db->commit();
-                    header("Location: index.php?controller=pengiriman&action=index&msg=success_create");
+                    header("Location: " . BASE_URL . "pengiriman?msg=success_create");
                     exit;
                 } catch (Exception $e) {
                     $db->rollBack();
                     $error = "Gagal mencatat pengiriman: " . $e->getMessage();
                 }
             }
+        }
+
+        // Get Stock Matrix for JS Modal Validation
+        $db = (new Database())->getConnection();
+        $sql_matrix = "SELECT r.id as relasi_id, b.id as barang_id,
+                      (COALESCE(sa.stok_awal, 0) + COALESCE(p_in.total_in, 0) - COALESCE(p_out.total_out, 0)) as stok_akhir
+                      FROM relasi r
+                      CROSS JOIN barang b
+                      LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
+                      LEFT JOIN (SELECT relasi_id, barang_id, SUM(jumlah_masuk) as total_in FROM pengiriman GROUP BY relasi_id, barang_id) p_in ON p_in.relasi_id = r.id AND p_in.barang_id = b.id
+                      LEFT JOIN (SELECT relasi_id, barang_id, SUM(jumlah_keluar) as total_out FROM pengiriman GROUP BY relasi_id, barang_id) p_out ON p_out.relasi_id = r.id AND p_out.barang_id = b.id";
+        $stmt_matrix = $db->query($sql_matrix);
+        $stockMatrixData = $stmt_matrix->fetchAll();
+        $stockMatrix = [];
+        foreach ($stockMatrixData as $row) {
+            $stockMatrix[$row['relasi_id']][$row['barang_id']] = (int)$row['stok_akhir'];
         }
 
         require_once __DIR__ . '/../views/pengiriman/create.php';
@@ -190,7 +207,7 @@ class PengirimanController {
         
         $pengiriman = $pengirimanModel->getById($id);
         if (!$pengiriman) {
-            header("Location: index.php?controller=pengiriman&action=index");
+            header("Location: " . BASE_URL . "pengiriman");
             exit;
         }
 
@@ -254,20 +271,37 @@ class PengirimanController {
                     $baseline_akhir = $baseline_akhir - $pengiriman['jumlah_masuk'] + $pengiriman['jumlah_keluar'];
                 }
                 
-                if ($jumlah_keluar > $baseline_akhir) {
-                    $error = "Gagal: Jumlah kembali (" . $jumlah_keluar . ") melebihi stok tabung yang dipegang mitra (" . $baseline_akhir . ").";
-                }
+                // Validasi stok dikomentari agar bisa minus
+                // if ($jumlah_keluar > $baseline_akhir) {
+                //     $error = "Gagal: Jumlah kembali (" . $jumlah_keluar . ") melebihi stok tabung yang dipegang mitra (" . $baseline_akhir . ").";
+                // }
             }
 
             if (!isset($error)) {
                 try {
                     $pengirimanModel->update($id, $tanggal, $no_surat_jalan, $relasi_id, $barang_id, $jumlah_masuk, $kondisi_kirim, $jumlah_keluar, $kondisi_kembali, $keterangan);
-                    header("Location: index.php?controller=pengiriman&action=index&msg=success_update");
+                    header("Location: " . BASE_URL . "pengiriman?msg=success_update");
                     exit;
                 } catch (Exception $e) {
                     $error = "Gagal memperbarui pengiriman: " . $e->getMessage();
                 }
             }
+        }
+
+        // Get Stock Matrix for JS Modal Validation
+        $db = (new Database())->getConnection();
+        $sql_matrix = "SELECT r.id as relasi_id, b.id as barang_id,
+                      (COALESCE(sa.stok_awal, 0) + COALESCE(p_in.total_in, 0) - COALESCE(p_out.total_out, 0)) as stok_akhir
+                      FROM relasi r
+                      CROSS JOIN barang b
+                      LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
+                      LEFT JOIN (SELECT relasi_id, barang_id, SUM(jumlah_masuk) as total_in FROM pengiriman GROUP BY relasi_id, barang_id) p_in ON p_in.relasi_id = r.id AND p_in.barang_id = b.id
+                      LEFT JOIN (SELECT relasi_id, barang_id, SUM(jumlah_keluar) as total_out FROM pengiriman GROUP BY relasi_id, barang_id) p_out ON p_out.relasi_id = r.id AND p_out.barang_id = b.id";
+        $stmt_matrix = $db->query($sql_matrix);
+        $stockMatrixData = $stmt_matrix->fetchAll();
+        $stockMatrix = [];
+        foreach ($stockMatrixData as $row) {
+            $stockMatrix[$row['relasi_id']][$row['barang_id']] = (int)$row['stok_akhir'];
         }
 
         require_once __DIR__ . '/../views/pengiriman/edit.php';
@@ -280,14 +314,14 @@ class PengirimanController {
         if ($id > 0) {
             try {
                 $pengirimanModel->delete($id);
-                header("Location: index.php?controller=pengiriman&action=index&msg=success_delete");
+                header("Location: " . BASE_URL . "pengiriman?msg=success_delete");
                 exit;
             } catch (Exception $e) {
-                header("Location: index.php?controller=pengiriman&action=index&msg=error_delete");
+                header("Location: " . BASE_URL . "pengiriman?msg=error_delete");
                 exit;
             }
         }
-        header("Location: index.php?controller=pengiriman&action=index");
+        header("Location: " . BASE_URL . "pengiriman");
         exit;
     }
 }

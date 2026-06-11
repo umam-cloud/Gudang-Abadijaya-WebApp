@@ -1,5 +1,7 @@
 <?php
-$activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboard';
+$urlParam = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
+$urlParts = explode('/', filter_var($urlParam, FILTER_SANITIZE_URL));
+$activeController = !empty($urlParts[0]) ? $urlParts[0] : 'dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -145,11 +147,11 @@ $activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboar
                 <ul class="flex flex-col gap-2">
                     <?php 
                     $menuItems = [
-                        ['id' => 'dashboard', 'label' => 'Dashboard', 'url' => 'index.php?controller=dashboard&action=index', 'icon' => 'ph-house'],
-                        ['id' => 'pengiriman', 'label' => 'Log Pengiriman', 'url' => 'index.php?controller=pengiriman&action=index', 'icon' => 'ph-truck'],
-                        ['id' => 'relasi', 'label' => 'Stok Relasi / Mitra', 'url' => 'index.php?controller=relasi&action=index', 'icon' => 'ph-users-three'],
-                        ['id' => 'gudang', 'label' => 'Stok Gudang', 'url' => 'index.php?controller=gudang&action=index', 'icon' => 'ph-warehouse'],
-                        ['id' => 'evaluasi', 'label' => 'Evaluasi Repurchase', 'url' => 'index.php?controller=evaluasi&action=index', 'icon' => 'ph-chart-bar']
+                        ['id' => 'dashboard', 'label' => 'Dashboard', 'url' => BASE_URL . 'dashboard', 'icon' => 'ph-house'],
+                        ['id' => 'pengiriman', 'label' => 'Log Pengiriman', 'url' => BASE_URL . 'pengiriman', 'icon' => 'ph-truck'],
+                        ['id' => 'relasi', 'label' => 'Stok Relasi / Mitra', 'url' => BASE_URL . 'relasi', 'icon' => 'ph-users-three'],
+                        ['id' => 'gudang', 'label' => 'Stok Gudang', 'url' => BASE_URL . 'gudang', 'icon' => 'ph-warehouse'],
+                        ['id' => 'evaluasi', 'label' => 'Evaluasi Repurchase', 'url' => BASE_URL . 'evaluasi', 'icon' => 'ph-chart-bar']
                     ];
                     
                     foreach ($menuItems as $item):
@@ -185,7 +187,7 @@ $activeController = isset($_GET['controller']) ? $_GET['controller'] : 'dashboar
                         <i id="theme-icon-dark" class="ph-fill ph-moon text-xl block dark:hidden"></i>
                     </button>
                 </div>
-                <a href="index.php?controller=auth&action=logout" class="btn btn-secondary btn-sm w-full !text-danger hover:!bg-danger-bg">
+                <a href="<?= BASE_URL ?>auth/logout" class="btn btn-secondary btn-sm w-full !text-danger hover:!bg-danger-bg">
                     <i class="ph-bold ph-sign-out text-base"></i>
                     Keluar / Logout
                 </a>

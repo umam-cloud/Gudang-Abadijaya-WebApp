@@ -61,11 +61,7 @@
         </div>
 
         <?php if (isset($_GET['msg'])): ?>
-            <?php if ($_GET['msg'] === 'success_register'): ?>
-                <div class="bg-success/10 border border-success/20 text-success p-3 rounded-xl mb-6 text-sm text-center font-medium">
-                    Pendaftaran berhasil! Silakan login.
-                </div>
-            <?php elseif ($_GET['msg'] === 'success_logout'): ?>
+            <?php if ($_GET['msg'] === 'success_logout'): ?>
                 <div class="bg-success/10 border border-success/20 text-success p-3 rounded-xl mb-6 text-sm text-center font-medium">
                     Anda telah berhasil keluar.
                 </div>
@@ -78,7 +74,7 @@
             </div>
         <?php endif; ?>
 
-        <form action="index.php?controller=auth&action=login" method="POST" class="space-y-5">
+        <form action="<?= BASE_URL ?>auth/login" method="POST" class="space-y-5">
             <div>
                 <label class="form-label" for="username">Username</label>
                 <input type="text" id="username" name="username" class="form-control" required>
@@ -93,9 +89,6 @@
             </button>
         </form>
         
-        <div class="text-center mt-8 text-sm text-slate-500 dark:text-gray-400">
-            Belum punya akun? <a href="index.php?controller=auth&action=register" class="text-primary font-semibold hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Daftar di sini</a>
-        </div>
     </div>
 
     <script>

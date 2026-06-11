@@ -7,7 +7,7 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Catat pembelian tabung baru, isi ulang, atau penyesuaian manual</p>
     </div>
     <div>
-        <a href="index.php?controller=gudang&action=index" class="btn-secondary">Kembali</a>
+        <a href="<?= BASE_URL ?>gudang" class="btn-secondary">Kembali</a>
     </div>
 </div>
 
@@ -22,7 +22,7 @@
 <?php endif; ?>
 
 <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-4xl">
-    <form action="index.php?controller=gudang&action=adjust" method="POST">
+    <form action="<?= BASE_URL ?>gudang/adjust" method="POST">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="form-group">
                 <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="tanggal">Tanggal Penyesuaian</label>
@@ -72,7 +72,7 @@
         </div>
 
         <div class="flex justify-end gap-3 mt-8">
-            <a href="index.php?controller=gudang&action=index" class="btn-secondary">Batal</a>
+            <a href="<?= BASE_URL ?>gudang" class="btn-secondary">Batal</a>
             <button type="submit" class="btn-primary" <?= empty($barangList) ? 'disabled' : '' ?>>Simpan Penyesuaian</button>
         </div>
     </form>

@@ -7,7 +7,7 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Lihat detail inventaris tabung, riwayat pengiriman, dan log tindakan evaluasi</p>
     </div>
     <div class="flex items-center gap-2">
-        <a href="index.php?controller=relasi&action=index" class="btn-secondary">Kembali</a>
+        <a href="<?= BASE_URL ?>relasi" class="btn-secondary">Kembali</a>
         <a href="index.php?controller=relasi&action=edit&id=<?= $relasi['id'] ?>" class="btn-primary">
             <i class="ph-bold ph-pencil text-base"></i>
             Edit Profil
@@ -69,7 +69,7 @@
                 <p class="text-xs text-danger/80 mb-4">
                     Klien sudah tidak memesan selama lebih dari 1 bulan. Catat status negosiasi atau keputusan lanjut/putus di sini.
                 </p>
-                <form action="index.php?controller=evaluasi&action=create" method="POST" class="space-y-4">
+                <form action="<?= BASE_URL ?>evaluasi/create" method="POST" class="space-y-4">
                     <input type="hidden" name="relasi_id" value="<?= $relasi['id'] ?>">
                     <input type="hidden" name="tanggal" value="<?= date('Y-m-d') ?>">
                     

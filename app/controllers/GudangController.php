@@ -125,7 +125,7 @@ class GudangController {
             if (!isset($error)) {
                 try {
                     $gudangModel->addAdjustment($tanggal, $barang_id, $tipe_transaksi, $jumlah, $target_stok, $keterangan);
-                    header("Location: index.php?controller=gudang&action=index&msg=success_adjust");
+                    header("Location: " . BASE_URL . "gudang?msg=success_adjust");
                     exit;
                 } catch (Exception $e) {
                     $error = "Gagal mencatat penyesuaian: " . $e->getMessage();
@@ -144,10 +144,10 @@ class GudangController {
             $barangModel = new BarangModel();
             try {
                 $barangModel->create($nama_barang, $deskripsi);
-                header("Location: index.php?controller=gudang&action=index&tab=cylinders&msg=success_cylinder_create");
+                header("Location: " . BASE_URL . "gudang?tab=cylinders&msg=success_cylinder_create");
                 exit;
             } catch (Exception $e) {
-                header("Location: index.php?controller=gudang&action=index&tab=cylinders&msg=error_cylinder_exists");
+                header("Location: " . BASE_URL . "gudang?tab=cylinders&msg=error_cylinder_exists");
                 exit;
             }
         }
@@ -159,7 +159,7 @@ class GudangController {
         $barang = $barangModel->getById($id);
         
         if (!$barang) {
-            header("Location: index.php?controller=gudang&action=index&tab=cylinders");
+            header("Location: " . BASE_URL . "gudang?tab=cylinders");
             exit;
         }
 
@@ -169,7 +169,7 @@ class GudangController {
 
             try {
                 $barangModel->update($id, $nama_barang, $deskripsi);
-                header("Location: index.php?controller=gudang&action=index&tab=cylinders&msg=success_cylinder_update");
+                header("Location: " . BASE_URL . "gudang?tab=cylinders&msg=success_cylinder_update");
                 exit;
             } catch (Exception $e) {
                 $error = "Gagal memperbarui jenis tabung: " . $e->getMessage();
@@ -186,7 +186,7 @@ class GudangController {
         if ($id > 0) {
             $barangModel->delete($id);
         }
-        header("Location: index.php?controller=gudang&action=index&tab=cylinders&msg=success_cylinder_delete");
+        header("Location: " . BASE_URL . "gudang?tab=cylinders&msg=success_cylinder_delete");
         exit;
     }
 }

@@ -29,14 +29,14 @@ class EvaluasiController {
             $evaluasiModel = new EvaluasiModel();
             try {
                 $evaluasiModel->create($relasi_id, $tanggal, $status_lanjut, $catatan);
-                header("Location: index.php?controller=evaluasi&action=index&msg=success_eval");
+                header("Location: " . BASE_URL . "evaluasi?msg=success_eval");
                 exit;
             } catch (Exception $e) {
-                header("Location: index.php?controller=evaluasi&action=index&msg=error_eval");
+                header("Location: " . BASE_URL . "evaluasi?msg=error_eval");
                 exit;
             }
         }
-        header("Location: index.php?controller=evaluasi&action=index");
+        header("Location: " . BASE_URL . "evaluasi");
         exit;
     }
 }

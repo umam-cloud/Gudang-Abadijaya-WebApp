@@ -7,11 +7,11 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Kelola pencatatan harian untuk pengiriman tabung isi ke klien dan pengembalian tabung kosong</p>
     </div>
     <div class="flex items-center gap-3">
-        <a href="index.php?controller=pengiriman&action=export" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+        <a href="<?= BASE_URL ?>pengiriman/export" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
             <i class="ph-bold ph-file-csv text-base"></i>
             Export Excel
         </a>
-        <a href="index.php?controller=pengiriman&action=create" class="btn-primary">
+        <a href="<?= BASE_URL ?>pengiriman/create" class="btn-primary">
             <i class="ph-bold ph-plus text-base"></i>
             Catat Pengiriman Baru
         </a>

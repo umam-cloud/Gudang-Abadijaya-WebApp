@@ -7,7 +7,7 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Pantau persediaan tabung di gudang (Ready &amp; Kosong), riwayat transaksi, dan manajemen jenis tabung gas</p>
     </div>
     <div>
-        <a href="index.php?controller=gudang&action=adjust" class="btn-primary">
+        <a href="<?= BASE_URL ?>gudang/adjust" class="btn-primary">
             <i class="ph-bold ph-sliders-horizontal text-base"></i>
             Penyesuaian Stok Gudang
         </a>
@@ -55,7 +55,7 @@
     <div class="tab-content p-6 <?= (!isset($_GET['tab']) || $_GET['tab'] == 'stocks') ? '' : 'hidden' ?>" id="tab-stocks">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Ketersediaan Saat Ini</h3>
-            <a href="index.php?controller=gudang&action=export_stok" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+            <a href="<?= BASE_URL ?>gudang/export_stok" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
                 <i class="ph-bold ph-file-csv text-base"></i> Export Excel Stok
             </a>
         </div>
@@ -91,7 +91,7 @@
     <div class="tab-content p-6 <?= (isset($_GET['tab']) && $_GET['tab'] == 'transactions') ? '' : 'hidden' ?>" id="tab-transactions">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Riwayat Transaksi Gudang</h3>
-            <a href="index.php?controller=gudang&action=export_transaksi" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+            <a href="<?= BASE_URL ?>gudang/export_transaksi" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
                 <i class="ph-bold ph-file-csv text-base"></i> Export Excel Riwayat
             </a>
         </div>
@@ -179,7 +179,7 @@
                                     <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <a href="index.php?controller=gudang&action=edit_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline">Edit</a>
-                                            <a href="index.php?controller=gudang&action=delete_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan?', this.href);">Hapus</a>
+                                            <a href="index.php?controller=gudang&action=delete_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan', this.href);">Hapus</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -193,7 +193,7 @@
             <div class="lg:col-span-1">
                 <div class="bg-indigo-50/30 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 rounded-2xl p-6">
                     <h4 class="font-bold text-lg mb-6">Tambah Jenis Tabung Baru</h4>
-                    <form action="index.php?controller=gudang&action=create_cylinder" method="POST" class="space-y-4">
+                    <form action="<?= BASE_URL ?>gudang/create_cylinder" method="POST" class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="nama_barang">Nama Tabung (Kode)</label>
                             <input type="text" id="nama_barang" name="nama_barang" class="form-control" placeholder="Contoh: OXY 6m3" required>

@@ -28,7 +28,7 @@ class RelasiController {
             $relasiModel = new RelasiModel();
             try {
                 $relasiModel->create($nama_relasi, $lokasi, $stok_awal);
-                header("Location: index.php?controller=relasi&action=index&msg=success_create");
+                header("Location: " . BASE_URL . "relasi?msg=success_create");
                 exit;
             } catch (Exception $e) {
                 $error = "Gagal membuat relasi: " . $e->getMessage();
@@ -45,7 +45,7 @@ class RelasiController {
         
         $relasi = $relasiModel->getById($id);
         if (!$relasi) {
-            header("Location: index.php?controller=relasi&action=index");
+            header("Location: " . BASE_URL . "relasi");
             exit;
         }
 
@@ -65,7 +65,7 @@ class RelasiController {
 
             try {
                 $relasiModel->update($id, $nama_relasi, $lokasi, $stok_awal);
-                header("Location: index.php?controller=relasi&action=index&msg=success_update");
+                header("Location: " . BASE_URL . "relasi?msg=success_update");
                 exit;
             } catch (Exception $e) {
                 $error = "Gagal memperbarui relasi: " . $e->getMessage();
@@ -82,7 +82,7 @@ class RelasiController {
         if ($id > 0) {
             $relasiModel->delete($id);
         }
-        header("Location: index.php?controller=relasi&action=index&msg=success_delete");
+        header("Location: " . BASE_URL . "relasi?msg=success_delete");
         exit;
     }
 
@@ -94,7 +94,7 @@ class RelasiController {
         
         $relasi = $relasiModel->getById($id);
         if (!$relasi) {
-            header("Location: index.php?controller=relasi&action=index");
+            header("Location: " . BASE_URL . "relasi");
             exit;
         }
 
@@ -139,7 +139,7 @@ class RelasiController {
             "SELECT MAX(tanggal) as tanggal_terakhir, 
                     DATEDIFF(CURRENT_DATE, MAX(tanggal)) as hari_sejak_pengiriman
              FROM pengiriman 
-             WHERE relasi_id = ?"
+             WHERE relasi_id = "
         );
         $stmt_last->execute([$id]);
         $last_delivery = $stmt_last->fetch();

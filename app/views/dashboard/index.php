@@ -7,7 +7,7 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Pantau status stok gudang, pinjaman tabung relasi, dan alert repurchasing</p>
     </div>
     <div>
-        <a href="index.php?controller=pengiriman&action=create" class="btn-primary">
+        <a href="<?= BASE_URL ?>pengiriman/create" class="btn-primary">
             <i class="ph-bold ph-plus text-base"></i>
             Catat Pengiriman
         </a>
@@ -21,7 +21,7 @@
             <i class="ph-fill ph-warning text-xl"></i>
             <p class="font-medium"><strong>Perhatian:</strong> Ada <?= $activeAlertCount ?> mitra/relasi yang sudah lebih dari 30 hari tidak melakukan transaksi atau pengisian ulang tabung!</p>
         </div>
-        <a href="index.php?controller=evaluasi&action=index" class="btn-sm bg-white dark:bg-gray-800 border border-danger/30 text-danger hover:bg-danger-bg transition-colors font-bold">Evaluasi Sekarang</a>
+        <a href="<?= BASE_URL ?>evaluasi" class="btn-sm bg-white dark:bg-gray-800 border border-danger/30 text-danger hover:bg-danger-bg transition-colors font-bold">Evaluasi Sekarang</a>
     </div>
 <?php endif; ?>
 
@@ -146,7 +146,7 @@
                 </table>
             </div>
         </div>
-        <a href="index.php?controller=gudang&action=index" class="btn-secondary w-full justify-center mt-4">Kelola Gudang</a>
+        <a href="<?= BASE_URL ?>gudang" class="btn-secondary w-full justify-center mt-4">Kelola Gudang</a>
     </div>
 </div>
 
@@ -154,7 +154,7 @@
 <div class="glass-panel p-6 rounded-2xl shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-bold">Pengiriman Terbaru</h3>
-        <a href="index.php?controller=pengiriman&action=index" class="btn-secondary btn-sm">Lihat Semua</a>
+        <a href="<?= BASE_URL ?>pengiriman" class="btn-secondary btn-sm">Lihat Semua</a>
     </div>
     
     <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">

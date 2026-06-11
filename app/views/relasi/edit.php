@@ -7,7 +7,7 @@
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Ubah profil mitra dan sesuaikan saldo awal tabung mereka</p>
     </div>
     <div>
-        <a href="index.php?controller=relasi&action=index" class="btn-secondary">Kembali</a>
+        <a href="<?= BASE_URL ?>relasi" class="btn-secondary">Kembali</a>
     </div>
 </div>
 
@@ -54,7 +54,7 @@
         </div>
 
         <div class="flex justify-end gap-3 mt-8">
-            <a href="index.php?controller=relasi&action=index" class="btn-secondary">Batal</a>
+            <a href="<?= BASE_URL ?>relasi" class="btn-secondary">Batal</a>
             <button type="submit" class="btn-primary">Simpan Perubahan</button>
         </div>
     </form>
