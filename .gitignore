@@ -1,1 +1,3 @@
 .htaccess
+app/.htaccess
+public/.htaccess
