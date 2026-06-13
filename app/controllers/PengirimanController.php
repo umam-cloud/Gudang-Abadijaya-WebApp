@@ -102,7 +102,13 @@ class PengirimanController {
             $kondisi_kembalis = $_POST['kondisi_kembali'] ?? [];
 
             $db = (new Database())->getConnection();
-            
+            $pengirimanModel = new PengirimanModel();
+
+            // Check if Surat Jalan already exists
+            if (!empty($no_surat_jalan) && $pengirimanModel->checkSuratJalanExists($no_surat_jalan)) {
+                $error = "Gagal: No. Surat Jalan '$no_surat_jalan' sudah pernah dicatat sebelumnya (indikasi data ganda).";
+            }
+
             // 1. Accumulate totals per barang_id to validate stock
             $totals = [];
             $valid_items = [];
@@ -183,7 +189,6 @@ class PengirimanController {
             if (!isset($error)) {
                 try {
                     $db->beginTransaction();
-                    $pengirimanModel = new PengirimanModel();
                     
                     foreach ($valid_items as $item) {
                         $pengirimanModel->create($tanggal, $no_surat_jalan, $relasi_id, $item['barang_id'], $item['jumlah_masuk'], $item['kondisi_kirim'], $item['jumlah_keluar'], $item['kondisi_kembali'], $keterangan);
@@ -243,6 +248,13 @@ class PengirimanController {
             $jumlah_keluar = (int)$_POST['jumlah_keluar'];
             $kondisi_kembali = trim($_POST['kondisi_kembali'] ?? 'Kosong');
             $keterangan = trim($_POST['keterangan']);
+
+            // Validate no_surat_jalan if changed
+            if (!empty($no_surat_jalan) && $no_surat_jalan !== $pengiriman['no_surat_jalan']) {
+                if ($pengirimanModel->checkSuratJalanExists($no_surat_jalan)) {
+                    $error = "Gagal: No. Surat Jalan '$no_surat_jalan' sudah digunakan oleh catatan lain.";
+                }
+            }
 
             $db = (new Database())->getConnection();
             

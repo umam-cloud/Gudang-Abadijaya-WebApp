@@ -188,12 +188,24 @@ class RelasiModel {
     /**
      * Get a cross product of all clients and cylinder types, detailing stocks.
      */
-    public function countAllRelasi() {
-        $stmt = $this->db->query("SELECT COUNT(*) FROM relasi");
+    public function countAllRelasi($search = '') {
+        $sql = "SELECT COUNT(*) FROM relasi";
+        $params = [];
+        if (!empty($search)) {
+            $sql .= " WHERE nama_relasi LIKE ?";
+            $params[] = '%' . $search . '%';
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchColumn();
     }
 
-    public function getAllWithStocks($limit = 30, $offset = 0) {
+    public function getAllWithStocks($limit = 30, $offset = 0, $search = '') {
+        $whereClause = "";
+        if (!empty($search)) {
+            $whereClause = "WHERE nama_relasi LIKE :search";
+        }
+
         $sql = "SELECT 
                     r.id as relasi_id,
                     r.nama_relasi,
@@ -204,7 +216,7 @@ class RelasiModel {
                     COALESCE(SUM(p.jumlah_masuk), 0) as total_masuk,
                     COALESCE(SUM(p.jumlah_keluar), 0) as total_keluar,
                     (COALESCE(sa.stok_awal, 0) + COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)) as stok_akhir
-                FROM (SELECT * FROM relasi ORDER BY nama_relasi ASC LIMIT ? OFFSET ?) r
+                FROM (SELECT * FROM relasi $whereClause ORDER BY nama_relasi ASC LIMIT :limit OFFSET :offset) r
                 CROSS JOIN barang b
                 LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
                 LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
@@ -212,8 +224,11 @@ class RelasiModel {
                 ORDER BY r.nama_relasi ASC, b.nama_barang ASC";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
-        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        if (!empty($search)) {
+            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         $raw = $stmt->fetchAll();
         

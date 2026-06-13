@@ -4,15 +4,16 @@ class RelasiController {
         $relasiModel = new RelasiModel();
         $barangModel = new BarangModel();
         
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
         $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
         if ($page < 1) $page = 1;
         $limit = 30;
         $offset = ($page - 1) * $limit;
 
-        $clients = $relasiModel->getAllWithStocks($limit, $offset);
+        $clients = $relasiModel->getAllWithStocks($limit, $offset, $search);
         $barangList = $barangModel->getAll();
         
-        $total = $relasiModel->countAllRelasi();
+        $total = $relasiModel->countAllRelasi($search);
         $totalPages = ceil($total / $limit);
         
         require_once __DIR__ . '/../views/relasi/index.php';

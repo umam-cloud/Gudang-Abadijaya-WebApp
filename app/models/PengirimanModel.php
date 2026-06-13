@@ -77,6 +77,13 @@ class PengirimanModel {
         return $stmt->fetch();
     }
 
+    public function checkSuratJalanExists($no_surat_jalan) {
+        if (empty($no_surat_jalan)) return false;
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM pengiriman WHERE no_surat_jalan = ?");
+        $stmt->execute([$no_surat_jalan]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function create($tanggal, $no_surat_jalan, $relasi_id, $barang_id, $jumlah_masuk, $kondisi_kirim, $jumlah_keluar, $kondisi_kembali, $keterangan = '') {
         $inTransaction = $this->db->inTransaction();
         try {

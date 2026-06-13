@@ -25,12 +25,12 @@
                 *Angka menunjukkan jumlah tabung yang dipinjam (MP) di lokasi relasi
             </div>
         </div>
-        <div class="relative w-full sm:w-72">
+        <form method="GET" action="<?= BASE_URL ?>relasi" class="relative w-full sm:w-72" id="searchForm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i class="ph-bold ph-magnifying-glass text-slate-400 dark:text-slate-500"></i>
             </div>
-            <input type="text" id="searchMitra" class="w-full pl-10 py-2.5 text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 focus:border-primary dark:focus:border-primary focus:outline-none ring-0 ring-transparent focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20 rounded-xl text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 transition-colors duration-200 shadow-sm" placeholder="Cari nama mitra...">
-        </div>
+            <input type="text" name="search" id="searchMitra" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" class="w-full pl-10 py-2.5 text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 focus:border-primary dark:focus:border-primary focus:outline-none ring-0 ring-transparent focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20 rounded-xl text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 transition-colors duration-200 shadow-sm" placeholder="Cari nama mitra...">
+        </form>
     </div>
     <?php 
     $totals = [];
@@ -133,8 +133,11 @@
     <!-- Pagination -->
     <?php if (isset($totalPages) && $totalPages > 1): ?>
         <div class="flex justify-center gap-2 mt-8">
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="<?= BASE_URL ?>relasi/index?p=<?= $i ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
+            <?php 
+            $searchParam = isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : '';
+            for ($i = 1; $i <= $totalPages; $i++): 
+            ?>
+                <a href="<?= BASE_URL ?>relasi/index?p=<?= $i ?><?= $searchParam ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
@@ -145,22 +148,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchMitra');
-    const tableRows = document.querySelectorAll('tr.mitra-row');
-    
+    const searchForm = document.getElementById('searchForm');
+    let timeout = null;
+
     if (searchInput) {
-        searchInput.addEventListener('keyup', function(e) {
-            const term = e.target.value.toLowerCase();
-            
-            tableRows.forEach(row => {
-                const nama = row.querySelector('.mitra-nama').textContent.toLowerCase();
-                
-                if (nama.includes(term)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+        // Auto-submit form when typing stops (debounce)
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                searchForm.submit();
+            }, 500); // 500ms delay
         });
+
+        // Move cursor to end of input text after reload
+        if (searchInput.value) {
+            const length = searchInput.value.length;
+            searchInput.focus();
+            searchInput.setSelectionRange(length, length);
+        }
     }
 });
 </script>

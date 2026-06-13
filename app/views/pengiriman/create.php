@@ -142,7 +142,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertMessage = document.getElementById('minusAlertMessage');
 
     form.addEventListener('submit', function(e) {
-        if (isConfirmed) return; // Allow submit if already confirmed
+        if (form.dataset.submitting) {
+            e.preventDefault();
+            return;
+        }
+
+        if (isConfirmed) {
+            form.dataset.submitting = 'true';
+            return; // Allow submit if already confirmed
+        }
 
         const relasiId = document.getElementById('relasi_id').value;
         if (!relasiId) return;
@@ -191,6 +199,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.classList.remove('opacity-0');
                 modal.querySelector('div').classList.remove('scale-95');
             }, 10);
+        } else {
+            // Normal submit, no minus
+            form.dataset.submitting = 'true';
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
+                submitBtn.style.pointerEvents = 'none';
+                submitBtn.style.opacity = '0.7';
+            }
         }
     });
 
@@ -203,7 +220,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     btnConfirm.addEventListener('click', function() {
+        if (form.dataset.submitting) return;
         isConfirmed = true;
+        form.dataset.submitting = 'true';
+        
+        btnConfirm.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
+        btnConfirm.style.pointerEvents = 'none';
+        btnConfirm.style.opacity = '0.7';
+        
         form.submit();
     });
 
