@@ -188,7 +188,12 @@ class RelasiModel {
     /**
      * Get a cross product of all clients and cylinder types, detailing stocks.
      */
-    public function getAllWithStocks() {
+    public function countAllRelasi() {
+        $stmt = $this->db->query("SELECT COUNT(*) FROM relasi");
+        return $stmt->fetchColumn();
+    }
+
+    public function getAllWithStocks($limit = 30, $offset = 0) {
         $sql = "SELECT 
                     r.id as relasi_id,
                     r.nama_relasi,
@@ -199,14 +204,17 @@ class RelasiModel {
                     COALESCE(SUM(p.jumlah_masuk), 0) as total_masuk,
                     COALESCE(SUM(p.jumlah_keluar), 0) as total_keluar,
                     (COALESCE(sa.stok_awal, 0) + COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)) as stok_akhir
-                FROM relasi r
+                FROM (SELECT * FROM relasi ORDER BY nama_relasi ASC LIMIT ? OFFSET ?) r
                 CROSS JOIN barang b
                 LEFT JOIN relasi_stok_awal sa ON sa.relasi_id = r.id AND sa.barang_id = b.id
                 LEFT JOIN pengiriman p ON p.relasi_id = r.id AND p.barang_id = b.id
                 GROUP BY r.id, b.id
                 ORDER BY r.nama_relasi ASC, b.nama_barang ASC";
         
-        $stmt = $this->db->query($sql);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         $raw = $stmt->fetchAll();
         
         // Group by relasi_id for easy display
@@ -248,7 +256,11 @@ class RelasiModel {
                     END as hari_sejak_pengiriman,
                     MAX(ev.status_lanjut) as status_lanjut,
                     MAX(ev.catatan) as evaluasi_catatan,
-                    MAX(ev.tanggal) as evaluasi_tanggal
+                    MAX(ev.tanggal) as evaluasi_tanggal,
+                    (
+                        COALESCE((SELECT SUM(stok_awal) FROM relasi_stok_awal WHERE relasi_id = r.id), 0) +
+                        COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)
+                    ) as total_tabung_dipinjam
                 FROM relasi r
                 LEFT JOIN pengiriman p ON p.relasi_id = r.id
                 LEFT JOIN (
@@ -262,6 +274,7 @@ class RelasiModel {
                     ) e2 ON e1.relasi_id = e2.relasi_id AND e1.created_at = e2.max_created
                 ) ev ON ev.relasi_id = r.id
                 GROUP BY r.id
+                HAVING total_tabung_dipinjam > 0
                 ORDER BY hari_sejak_pengiriman DESC, r.nama_relasi ASC";
         
         $stmt = $this->db->query($sql);

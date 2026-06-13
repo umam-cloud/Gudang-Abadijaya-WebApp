@@ -10,7 +10,7 @@ class GudangController {
         // Simple pagination for warehouse transactions
         $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
         if ($page < 1) $page = 1;
-        $limit = 50;
+        $limit = 30;
         $offset = ($page - 1) * $limit;
         
         $transactions = $gudangModel->getTransactions($limit, $offset);

@@ -147,7 +147,7 @@
         <?php if ($totalPages > 1): ?>
             <div class="flex justify-center gap-2 mt-8">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="index.php?controller=gudang&action=index&tab=transactions&p=<?= $i ?>" class="btn-sm <?= $page == $i ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
+                    <a href="<?= BASE_URL ?>gudang/index?tab=transactions&p=<?= $i ?>" class="btn-sm <?= $page == $i ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
@@ -178,8 +178,8 @@
                                     <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-400"><?= htmlspecialchars($b['deskripsi'] ?: '-') ?></td>
                                     <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="index.php?controller=gudang&action=edit_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline">Edit</a>
-                                            <a href="index.php?controller=gudang&action=delete_cylinder&id=<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan', this.href);">Hapus</a>
+                                            <a href="<?= BASE_URL ?>gudang/edit_cylinder/<?= $b['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline">Edit</a>
+                                            <a href="<?= BASE_URL ?>gudang/delete_cylinder/<?= $b['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Peringatan Ekstrem: Menghapus jenis tabung akan MENGHAPUS SEMUA transaksi, riwayat pengiriman, dan log stok terkait tabung ini! Lanjutkan', this.href);">Hapus</a>
                                         </div>
                                     </td>
                                 </tr>

@@ -33,6 +33,10 @@ $urlParts = explode('/', $url);
 $controllerParam = !empty($urlParts[0]) ? $urlParts[0] : 'dashboard';
 $actionParam = !empty($urlParts[1]) ? $urlParts[1] : 'index';
 
+if (isset($urlParts[2]) && $urlParts[2] !== '') {
+    $_GET['id'] = $urlParts[2];
+}
+
 // Authentication Middleware
 // If user is not logged in and not trying to access the Auth controller, redirect to login
 if (!isset($_SESSION['user_id']) && strtolower($controllerParam) !== 'auth') {

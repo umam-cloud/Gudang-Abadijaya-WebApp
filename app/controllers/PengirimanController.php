@@ -2,18 +2,28 @@
 class PengirimanController {
     public function index() {
         $pengirimanModel = new PengirimanModel();
+        $relasiModel = new RelasiModel();
+        
+        $clients = $relasiModel->getAll();
+
+        $filters = [];
+        if (!empty($_GET['tanggal'])) {
+            $filters['tanggal'] = $_GET['tanggal'];
+        }
+        if (!empty($_GET['relasi_id'])) {
+            $filters['relasi_id'] = $_GET['relasi_id'];
+        }
         
         // Simple pagination
         $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
         if ($page < 1) $page = 1;
-        $limit = 50;
+        $limit = 30;
         $offset = ($page - 1) * $limit;
         
-        $deliveries = $pengirimanModel->getAll($limit, $offset);
+        $deliveries = $pengirimanModel->getAll($limit, $offset, $filters);
         
         // Total count for basic pagination
-        $db = (new Database())->getConnection();
-        $total = $db->query("SELECT COUNT(*) FROM pengiriman")->fetchColumn();
+        $total = $pengirimanModel->countAll($filters);
         $totalPages = ceil($total / $limit);
 
         require_once __DIR__ . '/../views/pengiriman/index.php';
@@ -21,8 +31,17 @@ class PengirimanController {
 
     public function export() {
         $pengirimanModel = new PengirimanModel();
+        
+        $filters = [];
+        if (!empty($_GET['tanggal'])) {
+            $filters['tanggal'] = $_GET['tanggal'];
+        }
+        if (!empty($_GET['relasi_id'])) {
+            $filters['relasi_id'] = $_GET['relasi_id'];
+        }
+        
         // Fetch all without limit
-        $deliveries = $pengirimanModel->getAll(1000000, 0);
+        $deliveries = $pengirimanModel->getAll(1000000, 0, $filters);
 
         $filename = "Log_Pengiriman_" . date('Y-m-d') . ".xls";
 

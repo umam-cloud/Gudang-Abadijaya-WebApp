@@ -22,7 +22,7 @@
 <?php endif; ?>
 
 <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-4xl">
-    <form action="index.php?controller=relasi&action=edit&id=<?= $relasi['id'] ?>" method="POST">
+    <form action="<?= BASE_URL ?>relasi/edit/<?= $relasi['id'] ?>" method="POST">
         <div class="form-group">
             <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="nama_relasi">Nama Relasi / Toko</label>
             <input type="text" id="nama_relasi" name="nama_relasi" class="form-control" value="<?= htmlspecialchars($relasi['nama_relasi']) ?>" required>

@@ -41,5 +41,47 @@
 
     <!-- Main Script -->
     <script src="<?= BASE_URL ?>public/js/main.js?v=1.2"></script>
+
+    <!-- Global Drag-to-Scroll Script for Tables -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sliders = document.querySelectorAll('.overflow-x-auto');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        sliders.forEach(slider => {
+            // Add hint cursor
+            slider.style.cursor = 'grab';
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.style.cursor = 'grabbing';
+                // Remove selection to prevent text highlighting while dragging
+                window.getSelection().removeAllRanges();
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.style.cursor = 'grab';
+            });
+            
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.style.cursor = 'grab';
+            });
+            
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2; // Scroll-fast multiplier
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
+    });
+    </script>
 </body>
 </html>

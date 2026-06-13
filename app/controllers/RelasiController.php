@@ -4,8 +4,16 @@ class RelasiController {
         $relasiModel = new RelasiModel();
         $barangModel = new BarangModel();
         
-        $clients = $relasiModel->getAllWithStocks();
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 30;
+        $offset = ($page - 1) * $limit;
+
+        $clients = $relasiModel->getAllWithStocks($limit, $offset);
         $barangList = $barangModel->getAll();
+        
+        $total = $relasiModel->countAllRelasi();
+        $totalPages = ceil($total / $limit);
         
         require_once __DIR__ . '/../views/relasi/index.php';
     }
@@ -105,16 +113,31 @@ class RelasiController {
         // Calculate current stock and delivery history for this client
         $db = (new Database())->getConnection();
         
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 30;
+        $offset = ($page - 1) * $limit;
+
         // Delivery logs for this client
         $stmt_deliv = $db->prepare(
             "SELECT p.*, b.nama_barang 
              FROM pengiriman p
              JOIN barang b ON p.barang_id = b.id
              WHERE p.relasi_id = ?
-             ORDER BY p.tanggal DESC, p.id DESC"
+             ORDER BY p.tanggal DESC, p.id DESC
+             LIMIT ? OFFSET ?"
         );
-        $stmt_deliv->execute([$id]);
+        $stmt_deliv->bindValue(1, $id, PDO::PARAM_INT);
+        $stmt_deliv->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt_deliv->bindValue(3, $offset, PDO::PARAM_INT);
+        $stmt_deliv->execute();
         $deliveries = $stmt_deliv->fetchAll();
+
+        // Total count for deliveries pagination
+        $stmt_total_deliv = $db->prepare("SELECT COUNT(*) FROM pengiriman WHERE relasi_id = ?");
+        $stmt_total_deliv->execute([$id]);
+        $total_deliv = $stmt_total_deliv->fetchColumn();
+        $totalPages = ceil($total_deliv / $limit);
         
         // Sums of delivered & returned cylinders for calculations
         $stmt_sums = $db->prepare(
@@ -134,12 +157,20 @@ class RelasiController {
             ];
         }
 
+        $total_tabung_dipinjam = 0;
+        foreach ($barangList as $b) {
+            $init = isset($stokAwal[$b['id']]) ? $stokAwal[$b['id']] : 0;
+            $masuk = isset($sums[$b['id']]) ? $sums[$b['id']]['masuk'] : 0;
+            $keluar = isset($sums[$b['id']]) ? $sums[$b['id']]['keluar'] : 0;
+            $total_tabung_dipinjam += ($init + $masuk - $keluar);
+        }
+
         // Get last delivery info
         $stmt_last = $db->prepare(
             "SELECT MAX(tanggal) as tanggal_terakhir, 
                     DATEDIFF(CURRENT_DATE, MAX(tanggal)) as hari_sejak_pengiriman
              FROM pengiriman 
-             WHERE relasi_id = "
+             WHERE relasi_id = ?"
         );
         $stmt_last->execute([$id]);
         $last_delivery = $stmt_last->fetch();

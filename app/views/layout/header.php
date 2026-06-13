@@ -104,10 +104,18 @@ $activeController = !empty($urlParts[0]) ? $urlParts[0] : 'dashboard';
                 @apply border-primary ring-4 ring-primary/10 border-slate-200 dark:border-gray-700;
             }
             .choices[data-type*="select-one"]::after {
-                @apply border-slate-400 dark:border-gray-500 mt-[-2.5px];
+                @apply mt-[-2.5px];
+                border-color: #94a3b8 transparent transparent transparent;
+            }
+            .dark .choices[data-type*="select-one"]::after {
+                border-color: #6b7280 transparent transparent transparent;
             }
             .choices[data-type*="select-one"].is-open::after {
-                @apply mt-[-2.5px] border-slate-400 dark:border-gray-500;
+                @apply mt-[-2.5px];
+                border-color: transparent transparent #94a3b8 transparent;
+            }
+            .dark .choices[data-type*="select-one"].is-open::after {
+                border-color: transparent transparent #6b7280 transparent;
             }
             .choices__list--dropdown, .choices__list[aria-expanded] {
                 @apply bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl mt-2 shadow-lg z-50 text-slate-900 dark:text-gray-100;
@@ -126,6 +134,26 @@ $activeController = !empty($urlParts[0]) ? $urlParts[0] : 'dashboard';
             }
             .choices__list--single {
                 @apply p-0;
+            }
+            
+            /* Custom Auto-hiding Scrollbar */
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: transparent;
+                border-radius: 10px;
+                transition: background-color 0.3s ease;
+            }
+            .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+                background: rgba(148, 163, 184, 0.4);
+            }
+            .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+                background: rgba(71, 85, 105, 0.6);
             }
         }
     </style>

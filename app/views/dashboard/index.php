@@ -114,8 +114,10 @@
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold">Ketersediaan Tabung Gudang</h3>
         </div>
-        <div class="relative h-[300px] w-full">
-            <canvas id="warehouseChart"></canvas>
+        <div class="overflow-x-auto pb-2 custom-scrollbar">
+            <div class="relative h-[300px]" style="min-width: <?= max(600, count($warehouseStocks) * 140) ?>px;">
+                <canvas id="warehouseChart"></canvas>
+            </div>
         </div>
     </div>
     
@@ -125,9 +127,9 @@
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold">Detail Gudang</h3>
             </div>
-            <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
+            <div class="overflow-x-auto overflow-y-auto max-h-[250px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
                 <table class="w-full text-xs sm:text-sm text-left">
-                    <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
+                    <thead class="bg-slate-50 dark:bg-gray-800 text-slate-500 sticky top-0 z-10 shadow-sm">
                         <tr>
                             <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis</th>
                             <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Ready</th>

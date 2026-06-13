@@ -65,12 +65,12 @@
         <table class="w-full text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
-                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
+                    <th class="sticky left-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Lokasi</th>
                     <?php foreach ($barangList as $b): ?>
                         <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center"><?= htmlspecialchars($b['nama_barang']) ?></th>
                     <?php endforeach; ?>
-                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Aksi</th>
+                    <th class="sticky right-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,8 +82,8 @@
                     </tr>
                 <?php else: ?>
                     <?php foreach ($clients as $c): ?>
-                        <tr class="mitra-row hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
-                            <td class="mitra-nama px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
+                        <tr class="mitra-row group hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <td class="mitra-nama sticky left-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
                             
                             <!-- Dynamic Cylinder Stock columns -->
@@ -110,15 +110,15 @@
                             <?php endforeach; ?>
                             
                             <!-- Action Links -->
-                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
+                            <td class="sticky right-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="index.php?controller=relasi&action=detail&id=<?= $c['id'] ?>" class="btn-sm bg-slate-100 text-slate-700 dark:bg-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors inline-block no-underline" title="Detail Profil &amp; History">
+                                    <a href="<?= BASE_URL ?>relasi/detail/<?= $c['id'] ?>" class="btn-sm bg-slate-100 text-slate-700 dark:bg-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors inline-block no-underline" title="Detail Profil &amp; History">
                                         Detail
                                     </a>
-                                    <a href="index.php?controller=relasi&action=edit&id=<?= $c['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline" title="Edit Mitra">
+                                    <a href="<?= BASE_URL ?>relasi/edit/<?= $c['id'] ?>" class="btn-sm bg-indigo-50 text-primary dark:bg-indigo-500/20 hover:bg-indigo-100 transition-colors inline-block no-underline" title="Edit Mitra">
                                         Edit
                                     </a>
-                                    <a href="index.php?controller=relasi&action=delete&id=<?= $c['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirm('Apakah Anda yakin ingin menghapus relasi <?= htmlspecialchars($c['nama_relasi']) ?>? Semua data transaksi dan stok terkait akan terhapus.');" title="Hapus">
+                                    <a href="<?= BASE_URL ?>relasi/delete/<?= $c['id'] ?>" class="btn-sm bg-red-50 text-danger dark:bg-red-500/20 hover:bg-red-100 transition-colors inline-block no-underline" onclick="return confirmAction(event, 'Apakah Anda yakin ingin menghapus relasi <?= htmlspecialchars($c['nama_relasi'], ENT_QUOTES) ?>? Semua data transaksi dan stok terkait akan terhapus.', this.href, 'Hapus Mitra');" title="Hapus">
                                         Hapus
                                     </a>
                                 </div>
@@ -129,6 +129,17 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination -->
+    <?php if (isset($totalPages) && $totalPages > 1): ?>
+        <div class="flex justify-center gap-2 mt-8">
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="<?= BASE_URL ?>relasi/index?p=<?= $i ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

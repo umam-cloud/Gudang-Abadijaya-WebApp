@@ -8,19 +8,67 @@ class PengirimanModel {
         $this->db = (new Database())->getConnection();
     }
 
-    public function getAll($limit = 100, $offset = 0) {
+    public function getAll($limit = 100, $offset = 0, $filters = []) {
+        $whereClause = "";
+        $params = [];
+        
+        if (!empty($filters['tanggal'])) {
+            $whereClause .= " AND p.tanggal = ?";
+            $params[] = $filters['tanggal'];
+        }
+        if (!empty($filters['relasi_id'])) {
+            $whereClause .= " AND p.relasi_id = ?";
+            $params[] = $filters['relasi_id'];
+        }
+
+        if ($whereClause !== "") {
+            $whereClause = " WHERE 1=1" . $whereClause;
+        }
+
         $sql = "SELECT p.*, r.nama_relasi, b.nama_barang 
                 FROM pengiriman p
                 JOIN relasi r ON p.relasi_id = r.id
                 JOIN barang b ON p.barang_id = b.id
+                $whereClause
                 ORDER BY p.tanggal DESC, p.id DESC
                 LIMIT ? OFFSET ?";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
-        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $paramIdx = 1;
+        foreach ($params as $param) {
+            $stmt->bindValue($paramIdx++, $param);
+        }
+        $stmt->bindValue($paramIdx++, $limit, PDO::PARAM_INT);
+        $stmt->bindValue($paramIdx, $offset, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function countAll($filters = []) {
+        $whereClause = "";
+        $params = [];
+        
+        if (!empty($filters['tanggal'])) {
+            $whereClause .= " AND p.tanggal = ?";
+            $params[] = $filters['tanggal'];
+        }
+        if (!empty($filters['relasi_id'])) {
+            $whereClause .= " AND p.relasi_id = ?";
+            $params[] = $filters['relasi_id'];
+        }
+
+        if ($whereClause !== "") {
+            $whereClause = " WHERE 1=1" . $whereClause;
+        }
+        
+        $sql = "SELECT COUNT(*) FROM pengiriman p $whereClause";
+        $stmt = $this->db->prepare($sql);
+        $paramIdx = 1;
+        foreach ($params as $param) {
+            $stmt->bindValue($paramIdx++, $param);
+        }
+        $stmt->execute();
+        return $stmt->fetchColumn();
     }
 
     public function getById($id) {
@@ -122,11 +170,11 @@ class PengirimanModel {
                 $old_deltas = $calcDeltas($orig['jumlah_masuk'], $orig['kondisi_kirim'], $orig['jumlah_keluar'], $orig['kondisi_kembali']);
                 $stmt_stock_old = $this->db->prepare(
                     "UPDATE stok_gudang 
-                     SET stok_ready = stok_ready - ?, 
-                         stok_kosong = stok_kosong - ? 
+                     SET stok_ready = stok_ready + ?, 
+                         stok_kosong = stok_kosong + ? 
                      WHERE barang_id = ?"
                 );
-                $stmt_stock_old->execute([$old_deltas[0], $old_deltas[1], $orig['barang_id']]);
+                $stmt_stock_old->execute([-$old_deltas[0], -$old_deltas[1], $orig['barang_id']]);
                 
                 // Apply new cylinder stock
                 $new_deltas = $calcDeltas($jumlah_masuk, $kondisi_kirim, $jumlah_keluar, $kondisi_kembali);
@@ -168,17 +216,17 @@ class PengirimanModel {
                 throw new Exception("Transaction not found.");
             }
             
-            // Reverse stock
+            // Reverse stock: Gain what was sent, lose what was received
             $d_r = 0; $d_k = 0;
-            if ($orig['kondisi_kirim'] == 'Isi') $d_r -= $orig['jumlah_masuk'];
-            elseif ($orig['kondisi_kirim'] == 'Kosong') $d_k -= $orig['jumlah_masuk'];
-            if ($orig['kondisi_kembali'] == 'Kosong') $d_k += $orig['jumlah_keluar'];
-            elseif ($orig['kondisi_kembali'] == 'Isi') $d_r += $orig['jumlah_keluar'];
+            if ($orig['kondisi_kirim'] == 'Isi') $d_r += $orig['jumlah_masuk'];
+            elseif ($orig['kondisi_kirim'] == 'Kosong') $d_k += $orig['jumlah_masuk'];
+            if ($orig['kondisi_kembali'] == 'Kosong') $d_k -= $orig['jumlah_keluar'];
+            elseif ($orig['kondisi_kembali'] == 'Isi') $d_r -= $orig['jumlah_keluar'];
 
             $stmt_stock = $this->db->prepare(
                 "UPDATE stok_gudang 
-                 SET stok_ready = stok_ready - ?, 
-                     stok_kosong = stok_kosong - ? 
+                 SET stok_ready = stok_ready + ?, 
+                     stok_kosong = stok_kosong + ? 
                  WHERE barang_id = ?"
             );
             $stmt_stock->execute([$d_r, $d_k, $orig['barang_id']]);

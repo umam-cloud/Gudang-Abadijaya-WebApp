@@ -22,7 +22,7 @@
 <?php endif; ?>
 
 <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-3xl">
-    <form action="index.php?controller=gudang&action=edit_cylinder&id=<?= $barang['id'] ?>" method="POST">
+    <form action="<?= BASE_URL ?>gudang/edit_cylinder/<?= $barang['id'] ?>" method="POST">
         
         <div class="form-group">
             <label class="form-label block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2" for="nama_barang">Nama Tabung (Kode Barang)</label>
