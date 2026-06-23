@@ -115,7 +115,7 @@
             <h3 class="text-lg font-bold">Ketersediaan Tabung Gudang</h3>
         </div>
         <div class="overflow-x-auto pb-2 custom-scrollbar">
-            <div class="relative h-[300px]" style="min-width: <?= max(600, count($warehouseStocks) * 140) ?>px;">
+            <div class="relative h-[200px] sm:h-[300px]" style="min-width: <?= max(400, count($warehouseStocks) * 100) ?>px;">
                 <canvas id="warehouseChart"></canvas>
             </div>
         </div>

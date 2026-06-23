@@ -65,12 +65,12 @@
         <table class="w-full text-sm text-left whitespace-nowrap">
             <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
                 <tr>
-                    <th class="sticky left-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
+                    <th class="static md:sticky left-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Lokasi</th>
                     <?php foreach ($barangList as $b): ?>
                         <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center"><?= htmlspecialchars($b['nama_barang']) ?></th>
                     <?php endforeach; ?>
-                    <th class="sticky right-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Aksi</th>
+                    <th class="static md:sticky right-0 z-20 bg-slate-50 dark:bg-gray-800 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -83,7 +83,7 @@
                 <?php else: ?>
                     <?php foreach ($clients as $c): ?>
                         <tr class="mitra-row group hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
-                            <td class="mitra-nama sticky left-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
+                            <td class="mitra-nama static md:sticky left-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
                             
                             <!-- Dynamic Cylinder Stock columns -->
@@ -110,7 +110,7 @@
                             <?php endforeach; ?>
                             
                             <!-- Action Links -->
-                            <td class="sticky right-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
+                            <td class="static md:sticky right-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-slate-50 dark:group-hover:bg-[#1a2333] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="<?= BASE_URL ?>relasi/detail/<?= $c['id'] ?>" class="btn-sm bg-slate-100 text-slate-700 dark:bg-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors inline-block no-underline" title="Detail Profil &amp; History">
                                         Detail
