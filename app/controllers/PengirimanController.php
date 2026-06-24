@@ -5,8 +5,12 @@ class PengirimanController {
         $relasiModel = new RelasiModel();
         
         $clients = $relasiModel->getAll();
+        $all_sj = $pengirimanModel->getAllSuratJalan();
 
         $filters = [];
+        if (!empty($_GET['no_surat_jalan'])) {
+            $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
+        }
         if (!empty($_GET['tanggal'])) {
             $filters['tanggal'] = $_GET['tanggal'];
         }
@@ -33,6 +37,9 @@ class PengirimanController {
         $pengirimanModel = new PengirimanModel();
         
         $filters = [];
+        if (!empty($_GET['no_surat_jalan'])) {
+            $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
+        }
         if (!empty($_GET['tanggal'])) {
             $filters['tanggal'] = $_GET['tanggal'];
         }

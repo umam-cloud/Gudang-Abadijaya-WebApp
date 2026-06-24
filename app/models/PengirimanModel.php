@@ -12,6 +12,10 @@ class PengirimanModel {
         $whereClause = "";
         $params = [];
         
+        if (!empty($filters['no_surat_jalan'])) {
+            $whereClause .= " AND p.no_surat_jalan = ?";
+            $params[] = $filters['no_surat_jalan'];
+        }
         if (!empty($filters['tanggal'])) {
             $whereClause .= " AND p.tanggal = ?";
             $params[] = $filters['tanggal'];
@@ -48,6 +52,10 @@ class PengirimanModel {
         $whereClause = "";
         $params = [];
         
+        if (!empty($filters['no_surat_jalan'])) {
+            $whereClause .= " AND p.no_surat_jalan = ?";
+            $params[] = $filters['no_surat_jalan'];
+        }
         if (!empty($filters['tanggal'])) {
             $whereClause .= " AND p.tanggal = ?";
             $params[] = $filters['tanggal'];
@@ -61,7 +69,7 @@ class PengirimanModel {
             $whereClause = " WHERE 1=1" . $whereClause;
         }
         
-        $sql = "SELECT COUNT(*) FROM pengiriman p $whereClause";
+        $sql = "SELECT COUNT(*) FROM pengiriman p JOIN relasi r ON p.relasi_id = r.id $whereClause";
         $stmt = $this->db->prepare($sql);
         $paramIdx = 1;
         foreach ($params as $param) {
@@ -82,6 +90,11 @@ class PengirimanModel {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM pengiriman WHERE no_surat_jalan = ?");
         $stmt->execute([$no_surat_jalan]);
         return $stmt->fetchColumn() > 0;
+    }
+
+    public function getAllSuratJalan() {
+        $stmt = $this->db->query("SELECT DISTINCT no_surat_jalan FROM pengiriman WHERE no_surat_jalan IS NOT NULL AND no_surat_jalan != '' ORDER BY no_surat_jalan ASC");
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function create($tanggal, $no_surat_jalan, $relasi_id, $barang_id, $jumlah_masuk, $kondisi_kirim, $jumlah_keluar, $kondisi_kembali, $keterangan = '') {

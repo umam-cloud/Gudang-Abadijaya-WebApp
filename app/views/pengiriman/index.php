@@ -8,6 +8,7 @@
     </div>
 <?php
 $filterQuery = '';
+if (!empty($_GET['no_surat_jalan'])) $filterQuery .= '&no_surat_jalan=' . urlencode($_GET['no_surat_jalan']);
 if (!empty($_GET['tanggal'])) $filterQuery .= '&tanggal=' . urlencode($_GET['tanggal']);
 if (!empty($_GET['relasi_id'])) $filterQuery .= '&relasi_id=' . urlencode($_GET['relasi_id']);
 $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filterQuery, '&') : '');
@@ -44,8 +45,16 @@ $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filte
         </style>
         
         <form action="<?= BASE_URL ?>pengiriman" method="GET" class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-            <input type="date" name="tanggal" value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>" class="form-control py-1.5 text-sm w-full sm:w-[200px]" placeholder="Filter Tanggal">
-            <div class="w-full sm:w-[250px] filter-wrapper">
+            <input type="date" name="tanggal" value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>" class="form-control py-1.5 text-sm w-full sm:w-[150px]" placeholder="Filter Tanggal">
+            <div class="w-full sm:w-[200px] filter-wrapper">
+                <select name="no_surat_jalan" class="form-control py-1.5 text-sm choices-select">
+                    <option value="">Semua No. SJ</option>
+                    <?php foreach ($all_sj as $sj): ?>
+                        <option value="<?= htmlspecialchars($sj) ?>" <?= (isset($_GET['no_surat_jalan']) && $_GET['no_surat_jalan'] === $sj) ? 'selected' : '' ?>><?= htmlspecialchars($sj) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="w-full sm:w-[200px] filter-wrapper">
                 <select name="relasi_id" class="form-control py-1.5 text-sm choices-select">
                     <option value="">Semua Relasi</option>
                     <?php foreach ($clients as $c): ?>
@@ -54,7 +63,7 @@ $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filte
                 </select>
             </div>
             <button type="submit" class="btn-primary py-1.5 px-4 text-sm whitespace-nowrap">Filter</button>
-            <?php if(!empty($_GET['tanggal']) || !empty($_GET['relasi_id'])): ?>
+            <?php if(!empty($_GET['tanggal']) || !empty($_GET['relasi_id']) || !empty($_GET['no_surat_jalan'])): ?>
                 <a href="<?= BASE_URL ?>pengiriman" class="btn-secondary py-1.5 px-4 text-sm whitespace-nowrap">Reset</a>
             <?php endif; ?>
         </form>
