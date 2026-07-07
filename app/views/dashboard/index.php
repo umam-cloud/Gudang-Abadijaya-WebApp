@@ -108,7 +108,7 @@
 </div>
 
 <!-- Charts & Stock Status -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
     <!-- Stock Gudang Chart Card -->
     <div class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm">
         <div class="flex justify-between items-center mb-6">
@@ -149,6 +149,34 @@
             </div>
         </div>
         <a href="<?= BASE_URL ?>gudang" class="btn-secondary w-full justify-center mt-4">Kelola Gudang</a>
+    </div>
+
+    <!-- Grand Total -->
+    <div class="lg:col-span-1 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+        <div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Grand Total</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-2 italic">*Total keseluruhan tabung (Gudang + Mitra) per jenis</p>
+            <div class="overflow-x-auto overflow-y-auto max-h-[250px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
+                <table class="w-full text-xs sm:text-sm text-left">
+                    <thead class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th class="px-5 py-4 font-semibold border-b border-indigo-100 dark:border-indigo-800">Jenis</th>
+                            <th class="px-5 py-4 font-semibold border-b border-indigo-100 dark:border-indigo-800 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($grandTotalTabung as $nama => $jumlah): ?>
+                            <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5">
+                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($nama) ?></td>
+                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-indigo-600 dark:text-indigo-400 font-bold text-right"><?= $jumlah ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 

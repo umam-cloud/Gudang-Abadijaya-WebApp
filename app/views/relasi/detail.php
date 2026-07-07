@@ -6,7 +6,11 @@
         <h2 class="text-2xl font-bold tracking-tight">Profil Mitra &amp; Detail Saldo</h2>
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Lihat detail inventaris tabung, riwayat pengiriman, dan log tindakan evaluasi</p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
+        <a href="<?= BASE_URL ?>relasi/export_detail?id=<?= $relasi['id'] ?>" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+            <i class="ph-bold ph-file-csv text-base"></i>
+            Export Excel
+        </a>
         <a href="<?= BASE_URL ?>relasi" class="btn-secondary">Kembali</a>
         <a href="<?= BASE_URL ?>relasi/edit/<?= $relasi['id'] ?>" class="btn-primary">
             <i class="ph-bold ph-pencil text-base"></i>
@@ -185,12 +189,47 @@
                 
                 <!-- Pagination -->
                 <?php if (isset($totalPages) && $totalPages > 1): ?>
-                    <div class="flex justify-center gap-2 mt-6">
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <div class="flex justify-center items-center gap-1 mt-6">
+                        <!-- Prev -->
+                        <?php if ($page > 1): ?>
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page - 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <i class="ph-bold ph-caret-left"></i>
+                            </a>
+                        <?php endif; ?>
+
+                        <?php 
+                        $startPage = max(1, $page - 2);
+                        $endPage = min($totalPages, $page + 2);
+
+                        if ($startPage > 1) {
+                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=1" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
+                            if ($startPage > 2) {
+                                echo '<span class="px-2 text-slate-400">...</span>';
+                            }
+                        }
+
+                        for ($i = $startPage; $i <= $endPage; $i++): 
+                        ?>
                             <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $i ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                                 <?= $i ?>
                             </a>
                         <?php endfor; ?>
+
+                        <?php 
+                        if ($endPage < $totalPages) {
+                            if ($endPage < $totalPages - 1) {
+                                echo '<span class="px-2 text-slate-400">...</span>';
+                            }
+                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=' . $totalPages . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
+                        }
+                        ?>
+
+                        <!-- Next -->
+                        <?php if ($page < $totalPages): ?>
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page + 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <i class="ph-bold ph-caret-right"></i>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>

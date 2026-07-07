@@ -8,9 +8,8 @@
     </div>
 <?php
 $filterQuery = '';
-if (!empty($_GET['no_surat_jalan'])) $filterQuery .= '&no_surat_jalan=' . urlencode($_GET['no_surat_jalan']);
+if (!empty($_GET['search'])) $filterQuery .= '&search=' . urlencode($_GET['search']);
 if (!empty($_GET['tanggal'])) $filterQuery .= '&tanggal=' . urlencode($_GET['tanggal']);
-if (!empty($_GET['relasi_id'])) $filterQuery .= '&relasi_id=' . urlencode($_GET['relasi_id']);
 $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filterQuery, '&') : '');
 ?>
     <div class="flex items-center gap-3">
@@ -45,25 +44,15 @@ $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filte
         </style>
         
         <form action="<?= BASE_URL ?>pengiriman" method="GET" class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-            <input type="date" name="tanggal" value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>" class="form-control py-1.5 text-sm w-full sm:w-[150px]" placeholder="Filter Tanggal">
-            <div class="w-full sm:w-[200px] filter-wrapper">
-                <select name="no_surat_jalan" class="form-control py-1.5 text-sm choices-select">
-                    <option value="">Semua No. SJ</option>
-                    <?php foreach ($all_sj as $sj): ?>
-                        <option value="<?= htmlspecialchars($sj) ?>" <?= (isset($_GET['no_surat_jalan']) && $_GET['no_surat_jalan'] === $sj) ? 'selected' : '' ?>><?= htmlspecialchars($sj) ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <input type="date" name="tanggal" value="<?= htmlspecialchars($_GET['tanggal'] ?? '') ?>" class="form-control py-1.5 text-sm w-full sm:w-[150px]" title="Filter Tanggal">
+            <div class="w-full sm:w-[300px] relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="ph-bold ph-magnifying-glass text-slate-400 dark:text-slate-500"></i>
+                </div>
+                <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" class="w-full pl-10 py-1.5 text-sm form-control" placeholder="Cari ket, no SJ, relasi, tabung...">
             </div>
-            <div class="w-full sm:w-[200px] filter-wrapper">
-                <select name="relasi_id" class="form-control py-1.5 text-sm choices-select">
-                    <option value="">Semua Relasi</option>
-                    <?php foreach ($clients as $c): ?>
-                        <option value="<?= $c['id'] ?>" <?= (isset($_GET['relasi_id']) && $_GET['relasi_id'] == $c['id']) ? 'selected' : '' ?>><?= htmlspecialchars($c['nama_relasi']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <button type="submit" class="btn-primary py-1.5 px-4 text-sm whitespace-nowrap">Filter</button>
-            <?php if(!empty($_GET['tanggal']) || !empty($_GET['relasi_id']) || !empty($_GET['no_surat_jalan'])): ?>
+            <button type="submit" class="btn-primary py-1.5 px-4 text-sm whitespace-nowrap">Cari</button>
+            <?php if(!empty($_GET['tanggal']) || !empty($_GET['search'])): ?>
                 <a href="<?= BASE_URL ?>pengiriman" class="btn-secondary py-1.5 px-4 text-sm whitespace-nowrap">Reset</a>
             <?php endif; ?>
         </form>
@@ -119,12 +108,47 @@ $exportUrl = BASE_URL . 'pengiriman/export' . ($filterQuery ? '?' . ltrim($filte
 
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
-        <div class="flex justify-center gap-2 mt-8">
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+        <div class="flex justify-center items-center gap-1 mt-8">
+            <!-- Prev -->
+            <?php if ($page > 1): ?>
+                <a href="<?= BASE_URL ?>pengiriman/index?p=<?= $page - 1 ?><?= $filterQuery ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                    <i class="ph-bold ph-caret-left"></i>
+                </a>
+            <?php endif; ?>
+
+            <?php 
+            $startPage = max(1, $page - 2);
+            $endPage = min($totalPages, $page + 2);
+
+            if ($startPage > 1) {
+                echo '<a href="' . BASE_URL . 'pengiriman/index?p=1' . $filterQuery . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
+                if ($startPage > 2) {
+                    echo '<span class="px-2 text-slate-400">...</span>';
+                }
+            }
+
+            for ($i = $startPage; $i <= $endPage; $i++): 
+            ?>
                 <a href="<?= BASE_URL ?>pengiriman/index?p=<?= $i ?><?= $filterQuery ?>" class="btn-sm <?= $page == $i ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
+
+            <?php 
+            if ($endPage < $totalPages) {
+                if ($endPage < $totalPages - 1) {
+                    echo '<span class="px-2 text-slate-400">...</span>';
+                }
+                echo '<a href="' . BASE_URL . 'pengiriman/index?p=' . $totalPages . $filterQuery . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
+            }
+            ?>
+
+            <!-- Next -->
+            <?php if ($page < $totalPages): ?>
+                <a href="<?= BASE_URL ?>pengiriman/index?p=<?= $page + 1 ?><?= $filterQuery ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                    <i class="ph-bold ph-caret-right"></i>
+                </a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>

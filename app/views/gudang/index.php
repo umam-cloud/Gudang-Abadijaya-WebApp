@@ -6,7 +6,11 @@
         <h2 class="text-2xl font-bold tracking-tight">Manajemen Stok Gudang</h2>
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Pantau persediaan tabung di gudang (Ready &amp; Kosong), riwayat transaksi, dan manajemen jenis tabung gas</p>
     </div>
-    <div>
+    <div class="flex items-center gap-3">
+        <a href="<?= BASE_URL ?>gudang/transfer" class="btn-secondary !text-primary border border-primary/20 hover:!bg-primary/10">
+            <i class="ph-bold ph-arrows-left-right text-base"></i>
+            Transfer Tabung
+        </a>
         <a href="<?= BASE_URL ?>gudang/adjust" class="btn-primary">
             <i class="ph-bold ph-sliders-horizontal text-base"></i>
             Penyesuaian Stok Gudang
@@ -18,6 +22,11 @@
     <?php if ($_GET['msg'] === 'success_adjust'): ?>
         <div class="flex items-center justify-between p-4 mb-8 rounded-xl badge-success animate-[slideDown_0.4s_ease-out]">
             <p class="font-medium">Data penyesuaian stok berhasil dicatat!</p>
+            <button class="hover:opacity-75 transition-opacity alert-close-btn">&times;</button>
+        </div>
+    <?php elseif ($_GET['msg'] === 'success_transfer'): ?>
+        <div class="flex items-center justify-between p-4 mb-8 rounded-xl badge-success animate-[slideDown_0.4s_ease-out]">
+            <p class="font-medium">Transfer/konversi tabung berhasil diproses!</p>
             <button class="hover:opacity-75 transition-opacity alert-close-btn">&times;</button>
         </div>
     <?php elseif ($_GET['msg'] === 'success_cylinder_create'): ?>
@@ -53,11 +62,27 @@
 
     <!-- Tab 1: Current Stock Matrix -->
     <div class="tab-content p-6 <?= (!isset($_GET['tab']) || $_GET['tab'] == 'stocks') ? '' : 'hidden' ?>" id="tab-stocks">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Ketersediaan Saat Ini</h3>
-            <a href="<?= BASE_URL ?>gudang/export_stok" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">
+                    <?= !empty($_GET['date']) ? 'Stok Gudang per Tanggal: ' . date('d-m-Y', strtotime($_GET['date'])) : 'Ketersediaan Saat Ini' ?>
+                </h3>
+                <?php if (!empty($_GET['date'])): ?>
+                    <p class="text-xs text-warning mt-1 italic">*Mode Histori: Menampilkan proyeksi stok pada akhir hari tersebut.</p>
+                <?php endif; ?>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <form action="<?= BASE_URL ?>gudang" method="GET" class="flex items-center gap-2">
+                    <input type="date" name="date" value="<?= htmlspecialchars($_GET['date'] ?? '') ?>" class="form-control py-1.5 text-sm w-[150px]" title="Pilih Tanggal Stok">
+                    <button type="submit" class="btn-primary py-1.5 px-4 text-sm">Cek Histori</button>
+                    <?php if(!empty($_GET['date'])): ?>
+                        <a href="<?= BASE_URL ?>gudang" class="btn-secondary py-1.5 px-4 text-sm">Reset</a>
+                    <?php endif; ?>
+                </form>
+            <a href="<?= BASE_URL ?>gudang/export_stok<?= !empty($_GET['date']) ? '?date=' . urlencode($_GET['date']) : '' ?>" class="btn-secondary btn-sm !text-success border border-success/20 hover:!bg-success/10" target="_blank">
                 <i class="ph-bold ph-file-csv text-base"></i> Export Excel Stok
             </a>
+            </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php if (empty($warehouseStocks)): ?>
@@ -145,12 +170,47 @@
         </div>
         
         <?php if ($totalPages > 1): ?>
-            <div class="flex justify-center gap-2 mt-8">
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <div class="flex justify-center items-center gap-1 mt-8">
+                <!-- Prev -->
+                <?php if ($page > 1): ?>
+                    <a href="<?= BASE_URL ?>gudang/index?tab=transactions&p=<?= $page - 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        <i class="ph-bold ph-caret-left"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php 
+                $startPage = max(1, $page - 2);
+                $endPage = min($totalPages, $page + 2);
+
+                if ($startPage > 1) {
+                    echo '<a href="' . BASE_URL . 'gudang/index?tab=transactions&p=1" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
+                    if ($startPage > 2) {
+                        echo '<span class="px-2 text-slate-400">...</span>';
+                    }
+                }
+
+                for ($i = $startPage; $i <= $endPage; $i++): 
+                ?>
                     <a href="<?= BASE_URL ?>gudang/index?tab=transactions&p=<?= $i ?>" class="btn-sm <?= $page == $i ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
+
+                <?php 
+                if ($endPage < $totalPages) {
+                    if ($endPage < $totalPages - 1) {
+                        echo '<span class="px-2 text-slate-400">...</span>';
+                    }
+                    echo '<a href="' . BASE_URL . 'gudang/index?tab=transactions&p=' . $totalPages . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
+                }
+                ?>
+
+                <!-- Next -->
+                <?php if ($page < $totalPages): ?>
+                    <a href="<?= BASE_URL ?>gudang/index?tab=transactions&p=<?= $page + 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>

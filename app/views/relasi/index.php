@@ -6,11 +6,16 @@
         <h2 class="text-2xl font-bold tracking-tight">Mitra &amp; Relasi Pelanggan</h2>
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Monitor stok tabung yang dipinjam oleh masing-masing mitra di setiap lokasi</p>
     </div>
-    <div>
+<?php
+$exportUrl = BASE_URL . 'relasi/export' . (!empty($_GET['search']) ? '?search=' . urlencode($_GET['search']) : '');
+?>
+    <div class="flex items-center gap-3">
+        <a href="<?= $exportUrl ?>" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+            <i class="ph-bold ph-file-csv text-base"></i>
+            Export Excel
+        </a>
         <a href="<?= BASE_URL ?>relasi/create" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <i class="ph-bold ph-plus text-base"></i>
             Tambah Mitra Baru
         </a>
     </div>
@@ -132,15 +137,49 @@
     
     <!-- Pagination -->
     <?php if (isset($totalPages) && $totalPages > 1): ?>
-        <div class="flex justify-center gap-2 mt-8">
+        <div class="flex justify-center items-center gap-1 mt-8">
+            <?php $searchParam = isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>
+            
+            <!-- Prev -->
+            <?php if ($page > 1): ?>
+                <a href="<?= BASE_URL ?>relasi/index?p=<?= $page - 1 ?><?= $searchParam ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                    <i class="ph-bold ph-caret-left"></i>
+                </a>
+            <?php endif; ?>
+
             <?php 
-            $searchParam = isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : '';
-            for ($i = 1; $i <= $totalPages; $i++): 
+            $startPage = max(1, $page - 2);
+            $endPage = min($totalPages, $page + 2);
+
+            if ($startPage > 1) {
+                echo '<a href="' . BASE_URL . 'relasi/index?p=1' . $searchParam . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
+                if ($startPage > 2) {
+                    echo '<span class="px-2 text-slate-400">...</span>';
+                }
+            }
+
+            for ($i = $startPage; $i <= $endPage; $i++): 
             ?>
-                <a href="<?= BASE_URL ?>relasi/index?p=<?= $i ?><?= $searchParam ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
+                <a href="<?= BASE_URL ?>relasi/index?p=<?= $i ?><?= $searchParam ?>" class="btn-sm <?= $page == $i ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
+
+            <?php 
+            if ($endPage < $totalPages) {
+                if ($endPage < $totalPages - 1) {
+                    echo '<span class="px-2 text-slate-400">...</span>';
+                }
+                echo '<a href="' . BASE_URL . 'relasi/index?p=' . $totalPages . $searchParam . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
+            }
+            ?>
+
+            <!-- Next -->
+            <?php if ($page < $totalPages): ?>
+                <a href="<?= BASE_URL ?>relasi/index?p=<?= $page + 1 ?><?= $searchParam ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                    <i class="ph-bold ph-caret-right"></i>
+                </a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>

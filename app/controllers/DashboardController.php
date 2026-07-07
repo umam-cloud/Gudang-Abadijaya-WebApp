@@ -42,6 +42,30 @@ class DashboardController {
         $pengirimanModel = new PengirimanModel();
         $recentDeliveries = $pengirimanModel->getAll(5, 0);
 
+        // Calculate Grand Total (Mitra + Gudang) per type
+        $grandTotalTabung = [];
+        $barangList = $barangModel->getAll();
+        foreach ($barangList as $b) {
+            $grandTotalTabung[$b['nama_barang']] = 0;
+        }
+
+        foreach ($tabungMitraDetail as $nama_barang => $jumlah) {
+            if (isset($grandTotalTabung[$nama_barang])) {
+                $grandTotalTabung[$nama_barang] += $jumlah;
+            } else {
+                $grandTotalTabung[$nama_barang] = $jumlah;
+            }
+        }
+
+        foreach ($warehouseStocks as $w) {
+            $nama_barang = $w['nama_barang'];
+            if (isset($grandTotalTabung[$nama_barang])) {
+                $grandTotalTabung[$nama_barang] += ($w['stok_ready'] + $w['stok_kosong']);
+            } else {
+                $grandTotalTabung[$nama_barang] = ($w['stok_ready'] + $w['stok_kosong']);
+            }
+        }
+
         require_once __DIR__ . '/../views/dashboard/index.php';
     }
 }

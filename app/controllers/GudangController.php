@@ -4,7 +4,13 @@ class GudangController {
         $gudangModel = new GudangModel();
         $barangModel = new BarangModel();
         
-        $warehouseStocks = $gudangModel->getWarehouseStock();
+        $date_filter = isset($_GET['date']) ? $_GET['date'] : '';
+        if (!empty($date_filter)) {
+            $warehouseStocks = $gudangModel->getWarehouseStockAtDate($date_filter);
+        } else {
+            $warehouseStocks = $gudangModel->getWarehouseStock();
+        }
+        
         $barangList = $barangModel->getAll();
         
         // Simple pagination for warehouse transactions
@@ -24,9 +30,15 @@ class GudangController {
 
     public function export_stok() {
         $gudangModel = new GudangModel();
-        $warehouseStocks = $gudangModel->getWarehouseStock();
-
-        $filename = "Stok_Gudang_" . date('Y-m-d') . ".xls";
+        
+        $date_filter = isset($_GET['date']) ? $_GET['date'] : '';
+        if (!empty($date_filter)) {
+            $warehouseStocks = $gudangModel->getWarehouseStockAtDate($date_filter);
+            $filename = "Stok_Gudang_" . date('Y-m-d', strtotime($date_filter)) . ".xls";
+        } else {
+            $warehouseStocks = $gudangModel->getWarehouseStock();
+            $filename = "Stok_Gudang_Saat_Ini_" . date('Y-m-d') . ".xls";
+        }
 
         header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -134,6 +146,33 @@ class GudangController {
         }
 
         require_once __DIR__ . '/../views/gudang/adjust.php';
+    }
+
+    public function transfer() {
+        $barangModel = new BarangModel();
+        $barangList = $barangModel->getAll();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $tanggal = $_POST['tanggal'];
+            $barang_asal_id = (int)$_POST['barang_asal_id'];
+            $kondisi_asal = $_POST['kondisi_asal'];
+            $barang_tujuan_id = (int)$_POST['barang_tujuan_id'];
+            $kondisi_tujuan = $_POST['kondisi_tujuan'];
+            $jumlah = (int)$_POST['jumlah'];
+            $keterangan = trim($_POST['keterangan']);
+
+            $gudangModel = new GudangModel();
+            
+            try {
+                $gudangModel->transferStock($tanggal, $barang_asal_id, $kondisi_asal, $barang_tujuan_id, $kondisi_tujuan, $jumlah, $keterangan);
+                header("Location: " . BASE_URL . "gudang?msg=success_transfer");
+                exit;
+            } catch (Exception $e) {
+                $error = "Gagal memproses transfer: " . $e->getMessage();
+            }
+        }
+
+        require_once __DIR__ . '/../views/gudang/transfer.php';
     }
 
     public function create_cylinder() {

@@ -8,14 +8,18 @@ class PengirimanController {
         $all_sj = $pengirimanModel->getAllSuratJalan();
 
         $filters = [];
-        if (!empty($_GET['no_surat_jalan'])) {
-            $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
-        }
-        if (!empty($_GET['tanggal'])) {
-            $filters['tanggal'] = $_GET['tanggal'];
-        }
-        if (!empty($_GET['relasi_id'])) {
-            $filters['relasi_id'] = $_GET['relasi_id'];
+        if (!empty($_GET['search'])) {
+            $filters['search'] = trim($_GET['search']);
+        } else {
+            if (!empty($_GET['no_surat_jalan'])) {
+                $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
+            }
+            if (!empty($_GET['tanggal'])) {
+                $filters['tanggal'] = $_GET['tanggal'];
+            }
+            if (!empty($_GET['relasi_id'])) {
+                $filters['relasi_id'] = $_GET['relasi_id'];
+            }
         }
         
         // Simple pagination
@@ -37,14 +41,18 @@ class PengirimanController {
         $pengirimanModel = new PengirimanModel();
         
         $filters = [];
-        if (!empty($_GET['no_surat_jalan'])) {
-            $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
-        }
-        if (!empty($_GET['tanggal'])) {
-            $filters['tanggal'] = $_GET['tanggal'];
-        }
-        if (!empty($_GET['relasi_id'])) {
-            $filters['relasi_id'] = $_GET['relasi_id'];
+        if (!empty($_GET['search'])) {
+            $filters['search'] = trim($_GET['search']);
+        } else {
+            if (!empty($_GET['no_surat_jalan'])) {
+                $filters['no_surat_jalan'] = trim($_GET['no_surat_jalan']);
+            }
+            if (!empty($_GET['tanggal'])) {
+                $filters['tanggal'] = $_GET['tanggal'];
+            }
+            if (!empty($_GET['relasi_id'])) {
+                $filters['relasi_id'] = $_GET['relasi_id'];
+            }
         }
         
         // Fetch all without limit

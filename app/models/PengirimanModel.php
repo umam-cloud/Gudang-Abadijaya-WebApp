@@ -12,17 +12,26 @@ class PengirimanModel {
         $whereClause = "";
         $params = [];
         
-        if (!empty($filters['no_surat_jalan'])) {
-            $whereClause .= " AND p.no_surat_jalan = ?";
-            $params[] = $filters['no_surat_jalan'];
-        }
-        if (!empty($filters['tanggal'])) {
-            $whereClause .= " AND p.tanggal = ?";
-            $params[] = $filters['tanggal'];
-        }
-        if (!empty($filters['relasi_id'])) {
-            $whereClause .= " AND p.relasi_id = ?";
-            $params[] = $filters['relasi_id'];
+        if (!empty($filters['search'])) {
+            $search = '%' . $filters['search'] . '%';
+            $whereClause .= " AND (p.no_surat_jalan LIKE ? OR p.keterangan LIKE ? OR r.nama_relasi LIKE ? OR b.nama_barang LIKE ?)";
+            $params[] = $search;
+            $params[] = $search;
+            $params[] = $search;
+            $params[] = $search;
+        } else {
+            if (!empty($filters['no_surat_jalan'])) {
+                $whereClause .= " AND p.no_surat_jalan = ?";
+                $params[] = $filters['no_surat_jalan'];
+            }
+            if (!empty($filters['tanggal'])) {
+                $whereClause .= " AND p.tanggal = ?";
+                $params[] = $filters['tanggal'];
+            }
+            if (!empty($filters['relasi_id'])) {
+                $whereClause .= " AND p.relasi_id = ?";
+                $params[] = $filters['relasi_id'];
+            }
         }
 
         if ($whereClause !== "") {
@@ -52,24 +61,33 @@ class PengirimanModel {
         $whereClause = "";
         $params = [];
         
-        if (!empty($filters['no_surat_jalan'])) {
-            $whereClause .= " AND p.no_surat_jalan = ?";
-            $params[] = $filters['no_surat_jalan'];
-        }
-        if (!empty($filters['tanggal'])) {
-            $whereClause .= " AND p.tanggal = ?";
-            $params[] = $filters['tanggal'];
-        }
-        if (!empty($filters['relasi_id'])) {
-            $whereClause .= " AND p.relasi_id = ?";
-            $params[] = $filters['relasi_id'];
+        if (!empty($filters['search'])) {
+            $search = '%' . $filters['search'] . '%';
+            $whereClause .= " AND (p.no_surat_jalan LIKE ? OR p.keterangan LIKE ? OR r.nama_relasi LIKE ? OR b.nama_barang LIKE ?)";
+            $params[] = $search;
+            $params[] = $search;
+            $params[] = $search;
+            $params[] = $search;
+        } else {
+            if (!empty($filters['no_surat_jalan'])) {
+                $whereClause .= " AND p.no_surat_jalan = ?";
+                $params[] = $filters['no_surat_jalan'];
+            }
+            if (!empty($filters['tanggal'])) {
+                $whereClause .= " AND p.tanggal = ?";
+                $params[] = $filters['tanggal'];
+            }
+            if (!empty($filters['relasi_id'])) {
+                $whereClause .= " AND p.relasi_id = ?";
+                $params[] = $filters['relasi_id'];
+            }
         }
 
         if ($whereClause !== "") {
             $whereClause = " WHERE 1=1" . $whereClause;
         }
         
-        $sql = "SELECT COUNT(*) FROM pengiriman p JOIN relasi r ON p.relasi_id = r.id $whereClause";
+        $sql = "SELECT COUNT(*) FROM pengiriman p JOIN relasi r ON p.relasi_id = r.id JOIN barang b ON p.barang_id = b.id $whereClause";
         $stmt = $this->db->prepare($sql);
         $paramIdx = 1;
         foreach ($params as $param) {
