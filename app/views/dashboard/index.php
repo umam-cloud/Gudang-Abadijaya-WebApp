@@ -234,6 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const readyData = <?= json_encode(array_map('intval', array_column($warehouseStocks, 'stok_ready'))) ?>;
     const emptyData = <?= json_encode(array_map('intval', array_column($warehouseStocks, 'stok_kosong'))) ?>;
     
+    // Map negative values to red colors
+    const readyBgColors = readyData.map(val => val < 0 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(13, 148, 136, 0.7)');
+    const readyBorderColors = readyData.map(val => val < 0 ? 'rgb(239, 68, 68)' : 'rgb(13, 148, 136)');
+    
+    const emptyBgColors = emptyData.map(val => val < 0 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(245, 158, 11, 0.7)');
+    const emptyBorderColors = emptyData.map(val => val < 0 ? 'rgb(239, 68, 68)' : 'rgb(245, 158, 11)');
+    
     // Style settings for dark/light mode integration
     const isDark = document.documentElement.classList.contains('dark');
     const textColor = isDark ? '#f3f4f6' : '#1f2937';
@@ -247,16 +254,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 {
                     label: 'Ready / Full',
                     data: readyData,
-                    backgroundColor: 'rgba(13, 148, 136, 0.7)',
-                    borderColor: 'rgb(13, 148, 136)',
+                    backgroundColor: readyBgColors,
+                    borderColor: readyBorderColors,
                     borderWidth: 1,
                     borderRadius: 8
                 },
                 {
                     label: 'Kosong (Refill Queue)',
                     data: emptyData,
-                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
-                    borderColor: 'rgb(245, 158, 11)',
+                    backgroundColor: emptyBgColors,
+                    borderColor: emptyBorderColors,
                     borderWidth: 1,
                     borderRadius: 8
                 }

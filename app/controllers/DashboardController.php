@@ -66,6 +66,16 @@ class DashboardController {
             }
         }
 
+        // Sort warehouse stocks for chart (highest total first)
+        usort($warehouseStocks, function($a, $b) {
+            $totalA = $a['stok_ready'] + $a['stok_kosong'];
+            $totalB = $b['stok_ready'] + $b['stok_kosong'];
+            return $totalB <=> $totalA;
+        });
+
+        // Sort grand total (highest total first)
+        arsort($grandTotalTabung);
+
         require_once __DIR__ . '/../views/dashboard/index.php';
     }
 }
