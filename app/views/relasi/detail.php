@@ -175,17 +175,17 @@
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($deliveries as $d): ?>
-                                    <?php $netTotal = (int)$d['jumlah_masuk'] - (int)$d['jumlah_keluar']; ?>
+                                    <?php $saldo = (int)($d['saldo_berjalan'] ?? 0); ?>
                                     <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors">
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= date('d-m-Y', strtotime($d['tanggal'])) ?></td>
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($d['nama_barang']) ?></td>
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-success font-bold">+<?= $d['jumlah_masuk'] ?></td>
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-warning font-bold">-<?= $d['jumlah_keluar'] ?></td>
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold">
-                                            <?php if ($netTotal > 0): ?>
-                                                <span class="text-success font-bold">+<?= $netTotal ?></span>
-                                            <?php elseif ($netTotal < 0): ?>
-                                                <span class="text-danger font-bold"><?= $netTotal ?></span>
+                                            <?php if ($saldo > 0): ?>
+                                                <span class="text-primary font-bold"><?= $saldo ?></span>
+                                            <?php elseif ($saldo < 0): ?>
+                                                <span class="text-danger font-bold"><?= $saldo ?></span>
                                             <?php else: ?>
                                                 <span class="text-slate-400 dark:text-gray-400 font-semibold">0</span>
                                             <?php endif; ?>

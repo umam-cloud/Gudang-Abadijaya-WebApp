@@ -193,11 +193,23 @@ class RelasiController {
 
         // Delivery logs for this client
         $stmt_deliv = $db->prepare(
-            "SELECT p.*, b.nama_barang 
-             FROM pengiriman p
-             JOIN barang b ON p.barang_id = b.id
-             WHERE p.relasi_id = ?
-             ORDER BY p.tanggal DESC, p.id DESC
+            "SELECT sub.* FROM (
+                SELECT 
+                    p.*, 
+                    b.nama_barang,
+                    (
+                        COALESCE(rsa.stok_awal, 0) + 
+                        SUM(p.jumlah_masuk - p.jumlah_keluar) OVER (
+                            PARTITION BY p.barang_id 
+                            ORDER BY p.tanggal ASC, p.id ASC
+                        )
+                    ) as saldo_berjalan
+                FROM pengiriman p
+                JOIN barang b ON p.barang_id = b.id
+                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = p.relasi_id AND rsa.barang_id = p.barang_id
+                WHERE p.relasi_id = ?
+             ) sub
+             ORDER BY sub.tanggal DESC, sub.id DESC
              LIMIT ? OFFSET ?"
         );
         $stmt_deliv->bindValue(1, $id, PDO::PARAM_INT);
@@ -292,11 +304,23 @@ class RelasiController {
 
         // All deliveries for this client (no pagination for export)
         $stmt_deliv = $db->prepare(
-            "SELECT p.*, b.nama_barang 
-             FROM pengiriman p
-             JOIN barang b ON p.barang_id = b.id
-             WHERE p.relasi_id = ?
-             ORDER BY p.tanggal DESC, p.id DESC"
+            "SELECT sub.* FROM (
+                SELECT 
+                    p.*, 
+                    b.nama_barang,
+                    (
+                        COALESCE(rsa.stok_awal, 0) + 
+                        SUM(p.jumlah_masuk - p.jumlah_keluar) OVER (
+                            PARTITION BY p.barang_id 
+                            ORDER BY p.tanggal ASC, p.id ASC
+                        )
+                    ) as saldo_berjalan
+                FROM pengiriman p
+                JOIN barang b ON p.barang_id = b.id
+                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = p.relasi_id AND rsa.barang_id = p.barang_id
+                WHERE p.relasi_id = ?
+             ) sub
+             ORDER BY sub.tanggal DESC, sub.id DESC"
         );
         $stmt_deliv->execute([$id]);
         $deliveries = $stmt_deliv->fetchAll();
@@ -371,13 +395,13 @@ class RelasiController {
             echo '<tr><td colspan="6" style="text-align: center;">Belum ada riwayat pengiriman.</td></tr>';
         } else {
             foreach ($deliveries as $d) {
-                $net = (int)$d['jumlah_masuk'] - (int)$d['jumlah_keluar'];
+                $saldo = (int)($d['saldo_berjalan'] ?? 0);
                 echo '<tr>';
                 echo '<td>' . date('d-m-Y', strtotime($d['tanggal'])) . '</td>';
                 echo '<td>' . htmlspecialchars($d['nama_barang']) . '</td>';
                 echo '<td style="text-align: right; color: green;">' . ($d['jumlah_masuk'] > 0 ? '+' . $d['jumlah_masuk'] : '0') . '</td>';
                 echo '<td style="text-align: right; color: orange;">' . ($d['jumlah_keluar'] > 0 ? '-' . $d['jumlah_keluar'] : '0') . '</td>';
-                echo '<td style="text-align: right; font-weight: bold;">' . ($net > 0 ? '+' . $net : $net) . '</td>';
+                echo '<td style="text-align: right; font-weight: bold;">' . $saldo . '</td>';
                 echo '<td>' . htmlspecialchars($d['keterangan']) . '</td>';
                 echo '</tr>';
             }
