@@ -202,13 +202,12 @@ class RelasiController {
                     grouped.jumlah_keluar,
                     grouped.keterangan,
                     (
-                        COALESCE(rsa.stok_awal, 0) + 
+                        (SELECT COALESCE(SUM(stok_awal), 0) FROM relasi_stok_awal rsa2 WHERE rsa2.relasi_id = grouped.relasi_id) + 
                         (
-                            SELECT SUM(p2.jumlah_masuk - p2.jumlah_keluar)
+                            SELECT COALESCE(SUM(p2.jumlah_masuk - p2.jumlah_keluar), 0)
                             FROM pengiriman p2
                             WHERE p2.relasi_id = grouped.relasi_id 
-                              AND p2.barang_id = grouped.barang_id 
-                              AND p2.tanggal <= grouped.tanggal
+                              AND (p2.tanggal < grouped.tanggal OR (p2.tanggal = grouped.tanggal AND p2.barang_id >= grouped.barang_id))
                         )
                     ) as saldo_berjalan
                 FROM (
@@ -331,13 +330,12 @@ class RelasiController {
                     grouped.jumlah_keluar,
                     grouped.keterangan,
                     (
-                        COALESCE(rsa.stok_awal, 0) + 
+                        (SELECT COALESCE(SUM(stok_awal), 0) FROM relasi_stok_awal rsa2 WHERE rsa2.relasi_id = grouped.relasi_id) + 
                         (
-                            SELECT SUM(p2.jumlah_masuk - p2.jumlah_keluar)
+                            SELECT COALESCE(SUM(p2.jumlah_masuk - p2.jumlah_keluar), 0)
                             FROM pengiriman p2
                             WHERE p2.relasi_id = grouped.relasi_id 
-                              AND p2.barang_id = grouped.barang_id 
-                              AND p2.tanggal <= grouped.tanggal
+                              AND (p2.tanggal < grouped.tanggal OR (p2.tanggal = grouped.tanggal AND p2.barang_id >= grouped.barang_id))
                         )
                     ) as saldo_berjalan
                 FROM (
@@ -440,7 +438,7 @@ class RelasiController {
                 echo '<td style="text-align: right; color: green;">' . ($d['jumlah_masuk'] > 0 ? '+' . $d['jumlah_masuk'] : '0') . '</td>';
                 echo '<td style="text-align: right; color: orange;">' . ($d['jumlah_keluar'] > 0 ? '-' . $d['jumlah_keluar'] : '0') . '</td>';
                 echo '<td style="text-align: right; font-weight: bold;">' . $saldo . '</td>';
-                echo '<td>' . htmlspecialchars($d['keterangan']) . '</td>';
+                echo '<td>' . htmlspecialchars($d['keterangan'] ?? '') . '</td>';
                 echo '</tr>';
             }
         }
