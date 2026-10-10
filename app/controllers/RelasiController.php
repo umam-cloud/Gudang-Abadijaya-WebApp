@@ -195,21 +195,39 @@ class RelasiController {
         $stmt_deliv = $db->prepare(
             "SELECT sub.* FROM (
                 SELECT 
-                    p.*, 
-                    b.nama_barang,
+                    grouped.tanggal,
+                    grouped.barang_id,
+                    grouped.nama_barang,
+                    grouped.jumlah_masuk,
+                    grouped.jumlah_keluar,
+                    grouped.keterangan,
                     (
                         COALESCE(rsa.stok_awal, 0) + 
-                        SUM(p.jumlah_masuk - p.jumlah_keluar) OVER (
-                            PARTITION BY p.barang_id 
-                            ORDER BY p.tanggal ASC, p.id ASC
+                        (
+                            SELECT SUM(p2.jumlah_masuk - p2.jumlah_keluar)
+                            FROM pengiriman p2
+                            WHERE p2.relasi_id = grouped.relasi_id 
+                              AND p2.barang_id = grouped.barang_id 
+                              AND p2.tanggal <= grouped.tanggal
                         )
                     ) as saldo_berjalan
-                FROM pengiriman p
-                JOIN barang b ON p.barang_id = b.id
-                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = p.relasi_id AND rsa.barang_id = p.barang_id
-                WHERE p.relasi_id = ?
+                FROM (
+                    SELECT 
+                        p.relasi_id,
+                        p.tanggal, 
+                        p.barang_id,
+                        b.nama_barang,
+                        SUM(p.jumlah_masuk) as jumlah_masuk,
+                        SUM(p.jumlah_keluar) as jumlah_keluar,
+                        GROUP_CONCAT(NULLIF(p.keterangan, '') SEPARATOR ', ') as keterangan
+                    FROM pengiriman p
+                    JOIN barang b ON p.barang_id = b.id
+                    WHERE p.relasi_id = ?
+                    GROUP BY p.relasi_id, p.tanggal, p.barang_id, b.nama_barang
+                ) grouped
+                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = grouped.relasi_id AND rsa.barang_id = grouped.barang_id
              ) sub
-             ORDER BY sub.tanggal DESC, sub.id DESC
+             ORDER BY sub.tanggal DESC, sub.barang_id ASC
              LIMIT ? OFFSET ?"
         );
         $stmt_deliv->bindValue(1, $id, PDO::PARAM_INT);
@@ -219,7 +237,7 @@ class RelasiController {
         $deliveries = $stmt_deliv->fetchAll();
 
         // Total count for deliveries pagination
-        $stmt_total_deliv = $db->prepare("SELECT COUNT(*) FROM pengiriman WHERE relasi_id = ?");
+        $stmt_total_deliv = $db->prepare("SELECT COUNT(DISTINCT tanggal, barang_id) FROM pengiriman WHERE relasi_id = ?");
         $stmt_total_deliv->execute([$id]);
         $total_deliv = $stmt_total_deliv->fetchColumn();
         $totalPages = ceil($total_deliv / $limit);
@@ -306,21 +324,39 @@ class RelasiController {
         $stmt_deliv = $db->prepare(
             "SELECT sub.* FROM (
                 SELECT 
-                    p.*, 
-                    b.nama_barang,
+                    grouped.tanggal,
+                    grouped.barang_id,
+                    grouped.nama_barang,
+                    grouped.jumlah_masuk,
+                    grouped.jumlah_keluar,
+                    grouped.keterangan,
                     (
                         COALESCE(rsa.stok_awal, 0) + 
-                        SUM(p.jumlah_masuk - p.jumlah_keluar) OVER (
-                            PARTITION BY p.barang_id 
-                            ORDER BY p.tanggal ASC, p.id ASC
+                        (
+                            SELECT SUM(p2.jumlah_masuk - p2.jumlah_keluar)
+                            FROM pengiriman p2
+                            WHERE p2.relasi_id = grouped.relasi_id 
+                              AND p2.barang_id = grouped.barang_id 
+                              AND p2.tanggal <= grouped.tanggal
                         )
                     ) as saldo_berjalan
-                FROM pengiriman p
-                JOIN barang b ON p.barang_id = b.id
-                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = p.relasi_id AND rsa.barang_id = p.barang_id
-                WHERE p.relasi_id = ?
+                FROM (
+                    SELECT 
+                        p.relasi_id,
+                        p.tanggal, 
+                        p.barang_id,
+                        b.nama_barang,
+                        SUM(p.jumlah_masuk) as jumlah_masuk,
+                        SUM(p.jumlah_keluar) as jumlah_keluar,
+                        GROUP_CONCAT(NULLIF(p.keterangan, '') SEPARATOR ', ') as keterangan
+                    FROM pengiriman p
+                    JOIN barang b ON p.barang_id = b.id
+                    WHERE p.relasi_id = ?
+                    GROUP BY p.relasi_id, p.tanggal, p.barang_id, b.nama_barang
+                ) grouped
+                LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = grouped.relasi_id AND rsa.barang_id = grouped.barang_id
              ) sub
-             ORDER BY sub.tanggal DESC, sub.id DESC"
+             ORDER BY sub.tanggal DESC, sub.barang_id ASC"
         );
         $stmt_deliv->execute([$id]);
         $deliveries = $stmt_deliv->fetchAll();
@@ -368,6 +404,8 @@ class RelasiController {
             $masuk = isset($sums[$b['id']]) ? $sums[$b['id']]['masuk'] : 0;
             $keluar = isset($sums[$b['id']]) ? $sums[$b['id']]['keluar'] : 0;
             $akhir = $init + $masuk - $keluar;
+            
+            if ($init == 0 && $masuk == 0 && $keluar == 0) continue;
             
             echo '<tr>';
             echo '<td>' . htmlspecialchars($b['nama_barang']) . '</td>';

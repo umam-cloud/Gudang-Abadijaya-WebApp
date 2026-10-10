@@ -125,6 +125,9 @@
                             $masuk = isset($sums[$b['id']]) ? $sums[$b['id']]['masuk'] : 0;
                             $keluar = isset($sums[$b['id']]) ? $sums[$b['id']]['keluar'] : 0;
                             $akhir = $init + $masuk - $keluar;
+                            
+                            // Hanya tampilkan jika ada stok awal atau transaksi
+                            if ($init == 0 && $masuk == 0 && $keluar == 0) continue;
                             ?>
                             <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
                                 <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($b['nama_barang']) ?></td>
