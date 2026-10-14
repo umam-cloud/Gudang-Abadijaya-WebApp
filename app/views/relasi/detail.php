@@ -6,8 +6,14 @@
         <h2 class="text-2xl font-bold tracking-tight">Profil Mitra &amp; Detail Saldo</h2>
         <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Lihat detail inventaris tabung, riwayat pengiriman, dan log tindakan evaluasi</p>
     </div>
+<?php
+$exportUrlParams = ['id' => $relasi['id']];
+if (!empty($dateFilter)) $exportUrlParams['date'] = $dateFilter;
+if (!empty($barangFilter)) $exportUrlParams['barang'] = $barangFilter;
+$exportUrl = BASE_URL . 'relasi/export_detail?' . http_build_query($exportUrlParams);
+?>
     <div class="flex flex-wrap items-center gap-2">
-        <a href="<?= BASE_URL ?>relasi/export_detail?id=<?= $relasi['id'] ?>" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
+        <a href="<?= $exportUrl ?>" class="btn-secondary !text-success border border-success/20 hover:!bg-success/10" target="_blank">
             <i class="ph-bold ph-file-csv text-base"></i>
             Export Excel
         </a>
@@ -128,8 +134,9 @@
                             
                             // Hanya tampilkan jika ada stok awal atau transaksi
                             if ($init == 0 && $masuk == 0 && $keluar == 0) continue;
+                            $isMatched = (!empty($barangFilter) && stripos($b['nama_barang'], $barangFilter) !== false);
                             ?>
-                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors <?= $isMatched ? 'bg-indigo-50/80 dark:bg-indigo-950/40 ring-1 ring-primary/40 font-semibold' : '' ?>">
                                 <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($b['nama_barang']) ?></td>
                                 <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center text-slate-500 dark:text-gray-400"><?= $init ?></td>
                                 <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center text-success font-medium">+<?= $masuk ?></td>
@@ -159,6 +166,37 @@
             
             <!-- Deliveries Tab -->
             <div class="tab-content p-6 block" id="tab-deliveries">
+                <!-- Filter Bar: Tanggal & Jenis Tabung -->
+                <div class="mb-6 bg-slate-50/70 dark:bg-gray-800/50 p-3.5 rounded-xl border border-slate-200/80 dark:border-gray-700/80">
+                    <form method="GET" action="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>" class="flex flex-wrap items-center gap-2.5">
+                        <input type="hidden" name="id" value="<?= $relasi['id'] ?>">
+                        <input type="date" name="date" value="<?= htmlspecialchars($dateFilter ?? '') ?>" class="form-control !py-1.5 !px-3 text-xs w-[140px]" title="Pilih Tanggal Pengiriman">
+                        
+                        <div class="relative">
+                            <input type="text" 
+                                   name="barang" 
+                                   list="cylinderOptions" 
+                                   value="<?= htmlspecialchars($barangFilter ?? '') ?>" 
+                                   placeholder="Ketik jenis tabung..." 
+                                   class="form-control !py-1.5 !px-3 text-xs w-[180px]" 
+                                   title="Ketik Jenis Tabung">
+                            <datalist id="cylinderOptions">
+                                <?php foreach ($barangList as $b): ?>
+                                    <option value="<?= htmlspecialchars($b['nama_barang']) ?>"></option>
+                                <?php endforeach; ?>
+                            </datalist>
+                        </div>
+
+                        <button type="submit" class="btn-primary !py-1.5 !px-3.5 text-xs flex items-center gap-1 font-semibold whitespace-nowrap">
+                            <i class="ph-bold ph-funnel text-sm"></i>
+                            Filter
+                        </button>
+                        <?php if (!empty($dateFilter) || !empty($barangFilter)): ?>
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>" class="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">Reset</a>
+                        <?php endif; ?>
+                    </form>
+                </div>
+
                 <div class="overflow-x-auto border border-slate-200 dark:border-gray-700 rounded-xl">
                     <table class="w-full text-xs sm:text-sm text-left whitespace-nowrap">
                         <thead class="bg-slate-50/50 dark:bg-gray-800/50 text-slate-500">
@@ -174,7 +212,13 @@
                         <tbody>
                             <?php if (empty($deliveries)): ?>
                                 <tr>
-                                    <td colspan="6" class="px-5 py-8 text-center text-slate-500">Belum ada riwayat pengiriman untuk mitra ini.</td>
+                                    <td colspan="6" class="px-5 py-8 text-center text-slate-500">
+                                        <?php if (!empty($dateFilter) || !empty($barangFilter)): ?>
+                                            Tidak ada riwayat pengiriman yang sesuai dengan filter yang dipilih.
+                                        <?php else: ?>
+                                            Belum ada riwayat pengiriman untuk mitra ini.
+                                        <?php endif; ?>
+                                    </td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($deliveries as $d): ?>
@@ -186,7 +230,7 @@
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-warning font-bold">-<?= $d['jumlah_keluar'] ?></td>
                                         <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold">
                                             <?php if ($saldo > 0): ?>
-                                                <span class="text-primary font-bold"><?= $saldo ?></span>
+                                                 <span class="text-primary font-bold"><?= $saldo ?></span>
                                             <?php elseif ($saldo < 0): ?>
                                                 <span class="text-danger font-bold"><?= $saldo ?></span>
                                             <?php else: ?>
@@ -203,10 +247,15 @@
                 
                 <!-- Pagination -->
                 <?php if (isset($totalPages) && $totalPages > 1): ?>
+                    <?php
+                    $pageQuery = '';
+                    if (!empty($dateFilter)) $pageQuery .= '&date=' . urlencode($dateFilter);
+                    if (!empty($barangFilter)) $pageQuery .= '&barang=' . urlencode($barangFilter);
+                    ?>
                     <div class="flex justify-center items-center gap-1 mt-6">
                         <!-- Prev -->
                         <?php if ($page > 1): ?>
-                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page - 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page - 1 ?><?= $pageQuery ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
                                 <i class="ph-bold ph-caret-left"></i>
                             </a>
                         <?php endif; ?>
@@ -216,7 +265,7 @@
                         $endPage = min($totalPages, $page + 2);
 
                         if ($startPage > 1) {
-                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=1" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
+                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=1' . $pageQuery . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">1</a>';
                             if ($startPage > 2) {
                                 echo '<span class="px-2 text-slate-400">...</span>';
                             }
@@ -224,7 +273,7 @@
 
                         for ($i = $startPage; $i <= $endPage; $i++): 
                         ?>
-                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $i ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $i ?><?= $pageQuery ?>" class="btn-sm <?= (isset($page) && $page == $i) ? 'btn-primary' : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' ?>">
                                 <?= $i ?>
                             </a>
                         <?php endfor; ?>
@@ -234,13 +283,13 @@
                             if ($endPage < $totalPages - 1) {
                                 echo '<span class="px-2 text-slate-400">...</span>';
                             }
-                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=' . $totalPages . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
+                            echo '<a href="' . BASE_URL . 'relasi/detail/' . $relasi['id'] . '?p=' . $totalPages . $pageQuery . '" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">' . $totalPages . '</a>';
                         }
                         ?>
 
                         <!-- Next -->
                         <?php if ($page < $totalPages): ?>
-                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page + 1 ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                            <a href="<?= BASE_URL ?>relasi/detail/<?= $relasi['id'] ?>?p=<?= $page + 1 ?><?= $pageQuery ?>" class="btn-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
                                 <i class="ph-bold ph-caret-right"></i>
                             </a>
                         <?php endif; ?>

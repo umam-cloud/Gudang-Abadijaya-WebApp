@@ -103,74 +103,152 @@
 
 </div>
 
-<!-- Charts & Stock Status -->
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Stock Gudang Chart Card -->
-    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold">Grafik Stok Gudang</h3>
-        </div>
-        <div class="overflow-x-auto pb-2 custom-scrollbar">
-            <div class="relative h-[200px] sm:h-[300px]" style="min-width: <?= max(400, count($warehouseStocks) * 80) ?>px;">
-                <canvas id="warehouseChart"></canvas>
+<!-- Grand Total & Warehouse Stock Status -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Grand Total (Prominent Feature Card) -->
+    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+        <div>
+            <!-- Card Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-primary flex items-center justify-center">
+                            <i class="ph-bold ph-stack text-lg"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Grand Total Tabung</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Total keseluruhan aset tabung (Stok Gudang + Sedang Dipinjam Mitra)</p>
+                </div>
+                
+                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+                    <!-- Dropdown Select Filter -->
+                    <select id="selectFilterGrandTotal" class="py-1.5 px-3 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-700 dark:text-gray-200 focus:outline-none focus:border-primary">
+                        <option value="">Semua Jenis Tabung</option>
+                        <?php foreach ($grandTotalDetail as $g): ?>
+                            <option value="<?= htmlspecialchars($g['nama_barang']) ?>"><?= htmlspecialchars($g['nama_barang']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <!-- Live Search Input -->
+                    <div class="relative flex-grow sm:flex-grow-0">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="filterGrandTotal" placeholder="Cari jenis..." class="w-full sm:w-36 pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-900 dark:text-gray-100 focus:outline-none focus:border-primary">
+                    </div>
+                    <!-- Total Count Badge -->
+                    <span class="badge badge-info text-xs font-bold px-3 py-1.5 whitespace-nowrap">
+                        <i class="ph-bold ph-cylinder mr-1"></i> <?= number_format($totalSemuaTabung, 0, ',', '.') ?> Unit
+                    </span>
+                </div>
             </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto overflow-y-auto max-h-[380px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
+                <table class="w-full text-xs sm:text-sm text-left">
+                    <thead class="bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
+                        <tr>
+                            <th class="px-5 py-3.5 font-bold border-b border-indigo-100 dark:border-indigo-900/50">Jenis Tabung</th>
+                            <th class="px-5 py-3.5 font-bold border-b border-indigo-100 dark:border-indigo-900/50 text-right">Di Gudang</th>
+                            <th class="px-5 py-3.5 font-bold border-b border-indigo-100 dark:border-indigo-900/50 text-right">Di Mitra</th>
+                            <th class="px-5 py-3.5 font-bold border-b border-indigo-100 dark:border-indigo-900/50 text-right">Grand Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grandTotalTableBody" class="divide-y divide-slate-100 dark:divide-gray-800">
+                        <?php if (empty($grandTotalDetail)): ?>
+                            <tr>
+                                <td colspan="4" class="px-5 py-8 text-center text-slate-500 italic">Belum ada data barang.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($grandTotalDetail as $item): 
+                                $total = $item['grand_total'];
+                                $gudang = $item['stok_gudang'];
+                                $mitra = $item['stok_mitra'];
+                            ?>
+                                <tr class="hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 transition-colors">
+                                    <td class="px-5 py-3.5 font-semibold text-slate-800 dark:text-gray-200 tabung-name">
+                                        <?= htmlspecialchars($item['nama_barang']) ?>
+                                    </td>
+                                    <td class="px-5 py-3.5 text-right font-medium <?= $gudang < 0 ? 'text-danger' : 'text-success' ?>">
+                                        <?= number_format($gudang, 0, ',', '.') ?>
+                                    </td>
+                                    <td class="px-5 py-3.5 text-right font-medium text-indigo-600 dark:text-indigo-400">
+                                        <?= number_format($mitra, 0, ',', '.') ?>
+                                    </td>
+                                    <td class="px-5 py-3.5 text-right font-black text-slate-900 dark:text-gray-100">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                                            <?= number_format($total, 0, ',', '.') ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                    <tfoot class="bg-slate-50 dark:bg-gray-800 text-slate-800 dark:text-gray-200 font-bold border-t-2 border-slate-200 dark:border-gray-700 sticky bottom-0 z-10 shadow-sm">
+                        <tr>
+                            <td class="px-5 py-3">Total (<?= count($grandTotalDetail) ?> Jenis Tabung)</td>
+                            <td class="px-5 py-3 text-right text-success"><?= number_format($totalStokGudang, 0, ',', '.') ?></td>
+                            <td class="px-5 py-3 text-right text-indigo-600 dark:text-indigo-400"><?= number_format($totalTabungMitra, 0, ',', '.') ?></td>
+                            <td class="px-5 py-3 text-right font-black text-indigo-600 dark:text-indigo-400">
+                                <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50">
+                                    <?= number_format($totalSemuaTabung, 0, ',', '.') ?>
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Legend notes -->
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-gray-400 mt-4 pt-3 border-t border-slate-100 dark:border-gray-700/50">
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-success"></span> Stok Gudang</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> Tabung di Mitra</span>
+            </div>
+            <span class="italic text-[11px]">*Diperbarui otomatis secara real-time dari log transaksi</span>
         </div>
     </div>
     
-    <!-- Mini Stock Summary List -->
+    <!-- Stok Fisik di Gudang Card -->
     <div class="lg:col-span-1 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
         <div>
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold">Stok di Gudang</h3>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-500/10 text-success flex items-center justify-center">
+                            <i class="ph-bold ph-warehouse text-lg"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Stok di Gudang</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Stok fisik saat ini di gudang utama</p>
+                </div>
+                <span class="badge badge-success text-xs font-bold px-2.5 py-1">
+                    <?= number_format($totalStokGudang, 0, ',', '.') ?>
+                </span>
             </div>
-            <div class="overflow-x-auto overflow-y-auto max-h-[250px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
+            
+            <div class="overflow-x-auto overflow-y-auto max-h-[380px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
                 <table class="w-full text-xs sm:text-sm text-left">
-                    <thead class="bg-slate-50 dark:bg-gray-800 text-slate-500 sticky top-0 z-10 shadow-sm">
+                    <thead class="bg-slate-50 dark:bg-gray-800 text-slate-500 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
                         <tr>
-                            <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis Tabung</th>
-                            <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-right">Total Stok</th>
+                            <th class="px-5 py-3.5 font-semibold border-b border-slate-200 dark:border-gray-700">Jenis Tabung</th>
+                            <th class="px-5 py-3.5 font-semibold border-b border-slate-200 dark:border-gray-700 text-right">Stok Fisik</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
                         <?php foreach ($warehouseStocks as $w): ?>
-                            <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5">
-                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($w['nama_barang']) ?></td>
-                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-success font-bold text-right"><?= $w['stok'] ?></td>
+                            <tr class="hover:bg-slate-50/70 dark:hover:bg-gray-800/50 transition-colors">
+                                <td class="px-5 py-3.5 font-medium text-slate-800 dark:text-gray-200"><?= htmlspecialchars($w['nama_barang']) ?></td>
+                                <td class="px-5 py-3.5 text-success font-bold text-right"><?= number_format($w['stok'], 0, ',', '.') ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        <a href="<?= BASE_URL ?>gudang" class="btn-secondary w-full justify-center mt-4">Kelola Stok Gudang</a>
-    </div>
-
-    <!-- Grand Total -->
-    <div class="lg:col-span-1 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
-        <div>
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Grand Total</h3>
-            </div>
-            <p class="text-xs text-slate-500 mb-2 italic">*Total keseluruhan tabung (Gudang + Mitra)</p>
-            <div class="overflow-x-auto overflow-y-auto max-h-[250px] border border-slate-200 dark:border-gray-700 rounded-xl custom-scrollbar relative">
-                <table class="w-full text-xs sm:text-sm text-left">
-                    <thead class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 sticky top-0 z-10 shadow-sm">
-                        <tr>
-                            <th class="px-5 py-4 font-semibold border-b border-indigo-100 dark:border-indigo-800">Jenis</th>
-                            <th class="px-5 py-4 font-semibold border-b border-indigo-100 dark:border-indigo-800 text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($grandTotalTabung as $nama => $jumlah): ?>
-                            <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5">
-                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 font-bold text-slate-800 dark:text-gray-200"><?= htmlspecialchars($nama) ?></td>
-                                <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-indigo-600 dark:text-indigo-400 font-bold text-right"><?= $jumlah ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <a href="<?= BASE_URL ?>gudang" class="btn-secondary w-full justify-center mt-4">
+            <i class="ph-bold ph-sliders text-base"></i>
+            Kelola Stok Gudang
+        </a>
     </div>
 </div>
 
@@ -217,80 +295,37 @@
     </div>
 </div>
 
-<!-- Load Chart.js for premium graphics -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Grand Total Table Filter Script -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('warehouseChart').getContext('2d');
-    
-    // PHP variables mapped to JSON
-    const labels = <?= json_encode(array_column($warehouseStocks, 'nama_barang')) ?>;
-    const stockData = <?= json_encode(array_map('intval', array_column($warehouseStocks, 'stok'))) ?>;
-    
-    // Map negative values to red colors, positive to primary teal
-    const bgColors = stockData.map(val => val < 0 ? 'rgba(239, 68, 68, 0.75)' : 'rgba(13, 148, 136, 0.75)');
-    const borderColors = stockData.map(val => val < 0 ? 'rgb(239, 68, 68)' : 'rgb(13, 148, 136)');
-    
-    // Style settings for dark/light mode integration
-    const isDark = document.documentElement.classList.contains('dark');
-    const textColor = isDark ? '#f3f4f6' : '#1f2937';
-    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+    const filterInput = document.getElementById('filterGrandTotal');
+    const filterSelect = document.getElementById('selectFilterGrandTotal');
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Stok di Gudang',
-                    data: stockData,
-                    backgroundColor: bgColors,
-                    borderColor: borderColors,
-                    borderWidth: 1.5,
-                    borderRadius: 8
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor,
-                        font: {
-                            family: 'Outfit'
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        color: gridColor
-                    },
-                    ticks: {
-                        color: textColor,
-                        font: {
-                            family: 'Outfit'
-                        }
-                    }
-                },
-                y: {
-                    grid: {
-                        color: gridColor
-                    },
-                    ticks: {
-                        color: textColor,
-                        font: {
-                            family: 'Outfit'
-                        }
-                    },
-                    beginAtZero: true
-                }
+    function applyGrandTotalFilter(query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('#grandTotalTableBody tr');
+        rows.forEach(row => {
+            const nameEl = row.querySelector('.tabung-name');
+            if (nameEl) {
+                const text = nameEl.textContent.toLowerCase();
+                row.style.display = (q === '' || text.includes(q)) ? '' : 'none';
             }
-        }
-    });
+        });
+    }
+
+    if (filterInput) {
+        filterInput.addEventListener('input', function() {
+            if (filterSelect) filterSelect.value = '';
+            applyGrandTotalFilter(this.value);
+        });
+    }
+
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            if (filterInput) filterInput.value = this.value;
+            applyGrandTotalFilter(this.value);
+        });
+    }
 });
 </script>
 

@@ -167,8 +167,12 @@ class RelasiController {
         exit;
     }
 
-    public function detail() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    public function detail($id = null) {
+        if (!$id && isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
+        }
         $relasiModel = new RelasiModel();
         $barangModel = new BarangModel();
         $evaluasiModel = new EvaluasiModel();
@@ -191,9 +195,36 @@ class RelasiController {
         $limit = 30;
         $offset = ($page - 1) * $limit;
 
+        // Filter handling for delivery history: single specific date and/or cylinder type input
+        $dateFilter = isset($_GET['date']) ? trim($_GET['date']) : (isset($_GET['tanggal']) ? trim($_GET['tanggal']) : '');
+        if (empty($dateFilter) && !empty($_GET['start_date'])) {
+            $dateFilter = trim($_GET['start_date']);
+        }
+        $barangFilter = isset($_GET['barang']) ? trim($_GET['barang']) : (isset($_GET['barang_id']) ? trim($_GET['barang_id']) : '');
+
+        $filterConditions = [];
+        $filterParams = [];
+        if (!empty($dateFilter)) {
+            $filterConditions[] = "p.tanggal = ?";
+            $filterParams[] = $dateFilter;
+        }
+        if (!empty($barangFilter)) {
+            if (is_numeric($barangFilter)) {
+                $filterConditions[] = "p.barang_id = ?";
+                $filterParams[] = (int)$barangFilter;
+            } else {
+                $filterConditions[] = "b.nama_barang LIKE ?";
+                $filterParams[] = '%' . $barangFilter . '%';
+            }
+        }
+
+        $innerDateWhere = "";
+        if (!empty($filterConditions)) {
+            $innerDateWhere = " AND " . implode(" AND ", $filterConditions);
+        }
+
         // Delivery logs for this client
-        $stmt_deliv = $db->prepare(
-            "SELECT sub.* FROM (
+        $delivSql = "SELECT sub.* FROM (
                 SELECT 
                     grouped.tanggal,
                     grouped.barang_id,
@@ -202,12 +233,13 @@ class RelasiController {
                     grouped.jumlah_keluar,
                     grouped.keterangan,
                     (
-                        (SELECT COALESCE(SUM(stok_awal), 0) FROM relasi_stok_awal rsa2 WHERE rsa2.relasi_id = grouped.relasi_id) + 
+                        COALESCE(rsa.stok_awal, 0) + 
                         (
                             SELECT COALESCE(SUM(p2.jumlah_masuk - p2.jumlah_keluar), 0)
                             FROM pengiriman p2
                             WHERE p2.relasi_id = grouped.relasi_id 
-                              AND (p2.tanggal < grouped.tanggal OR (p2.tanggal = grouped.tanggal AND p2.barang_id >= grouped.barang_id))
+                              AND p2.barang_id = grouped.barang_id 
+                              AND p2.tanggal <= grouped.tanggal
                         )
                     ) as saldo_berjalan
                 FROM (
@@ -221,25 +253,37 @@ class RelasiController {
                         GROUP_CONCAT(NULLIF(p.keterangan, '') SEPARATOR ', ') as keterangan
                     FROM pengiriman p
                     JOIN barang b ON p.barang_id = b.id
-                    WHERE p.relasi_id = ?
+                    WHERE p.relasi_id = ? {$innerDateWhere}
                     GROUP BY p.relasi_id, p.tanggal, p.barang_id, b.nama_barang
                 ) grouped
                 LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = grouped.relasi_id AND rsa.barang_id = grouped.barang_id
              ) sub
              ORDER BY sub.tanggal DESC, sub.barang_id ASC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt_deliv->bindValue(1, $id, PDO::PARAM_INT);
-        $stmt_deliv->bindValue(2, $limit, PDO::PARAM_INT);
-        $stmt_deliv->bindValue(3, $offset, PDO::PARAM_INT);
+             LIMIT ? OFFSET ?";
+        $stmt_deliv = $db->prepare($delivSql);
+        $paramIdx = 1;
+        $stmt_deliv->bindValue($paramIdx++, $id, PDO::PARAM_INT);
+        foreach ($filterParams as $fp) {
+            $stmt_deliv->bindValue($paramIdx++, $fp, is_int($fp) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt_deliv->bindValue($paramIdx++, $limit, PDO::PARAM_INT);
+        $stmt_deliv->bindValue($paramIdx++, $offset, PDO::PARAM_INT);
         $stmt_deliv->execute();
         $deliveries = $stmt_deliv->fetchAll();
 
-        // Total count for deliveries pagination
-        $stmt_total_deliv = $db->prepare("SELECT COUNT(DISTINCT tanggal, barang_id) FROM pengiriman WHERE relasi_id = ?");
-        $stmt_total_deliv->execute([$id]);
+        // Total count for deliveries pagination (joined with barang so LIKE works)
+        $totalDelivSql = "SELECT COUNT(DISTINCT p.tanggal, p.barang_id) FROM pengiriman p JOIN barang b ON p.barang_id = b.id WHERE p.relasi_id = ? {$innerDateWhere}";
+        $stmt_total_deliv = $db->prepare($totalDelivSql);
+        $paramIdx = 1;
+        $stmt_total_deliv->bindValue($paramIdx++, $id, PDO::PARAM_INT);
+        foreach ($filterParams as $fp) {
+            $stmt_total_deliv->bindValue($paramIdx++, $fp, is_int($fp) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt_total_deliv->execute();
         $total_deliv = $stmt_total_deliv->fetchColumn();
         $totalPages = ceil($total_deliv / $limit);
+
+        $selectedBarangNama = $barangFilter;
         
         // Sums of delivered & returned cylinders for calculations
         $stmt_sums = $db->prepare(
@@ -280,8 +324,12 @@ class RelasiController {
         require_once __DIR__ . '/../views/relasi/detail.php';
     }
 
-    public function export_detail() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    public function export_detail($id = null) {
+        if (!$id && isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+        } else {
+            $id = (int)$id;
+        }
         if ($id <= 0) {
             header("Location: " . BASE_URL . "relasi");
             exit;
@@ -319,9 +367,36 @@ class RelasiController {
             ];
         }
 
+        // Filter handling for export: single specific date and/or cylinder type input
+        $dateFilter = isset($_GET['date']) ? trim($_GET['date']) : (isset($_GET['tanggal']) ? trim($_GET['tanggal']) : '');
+        if (empty($dateFilter) && !empty($_GET['start_date'])) {
+            $dateFilter = trim($_GET['start_date']);
+        }
+        $barangFilter = isset($_GET['barang']) ? trim($_GET['barang']) : (isset($_GET['barang_id']) ? trim($_GET['barang_id']) : '');
+
+        $filterConditions = [];
+        $filterParams = [];
+        if (!empty($dateFilter)) {
+            $filterConditions[] = "p.tanggal = ?";
+            $filterParams[] = $dateFilter;
+        }
+        if (!empty($barangFilter)) {
+            if (is_numeric($barangFilter)) {
+                $filterConditions[] = "p.barang_id = ?";
+                $filterParams[] = (int)$barangFilter;
+            } else {
+                $filterConditions[] = "b.nama_barang LIKE ?";
+                $filterParams[] = '%' . $barangFilter . '%';
+            }
+        }
+
+        $innerDateWhere = "";
+        if (!empty($filterConditions)) {
+            $innerDateWhere = " AND " . implode(" AND ", $filterConditions);
+        }
+
         // All deliveries for this client (no pagination for export)
-        $stmt_deliv = $db->prepare(
-            "SELECT sub.* FROM (
+        $delivSql = "SELECT sub.* FROM (
                 SELECT 
                     grouped.tanggal,
                     grouped.barang_id,
@@ -330,12 +405,13 @@ class RelasiController {
                     grouped.jumlah_keluar,
                     grouped.keterangan,
                     (
-                        (SELECT COALESCE(SUM(stok_awal), 0) FROM relasi_stok_awal rsa2 WHERE rsa2.relasi_id = grouped.relasi_id) + 
+                        COALESCE(rsa.stok_awal, 0) + 
                         (
                             SELECT COALESCE(SUM(p2.jumlah_masuk - p2.jumlah_keluar), 0)
                             FROM pengiriman p2
                             WHERE p2.relasi_id = grouped.relasi_id 
-                              AND (p2.tanggal < grouped.tanggal OR (p2.tanggal = grouped.tanggal AND p2.barang_id >= grouped.barang_id))
+                              AND p2.barang_id = grouped.barang_id 
+                              AND p2.tanggal <= grouped.tanggal
                         )
                     ) as saldo_berjalan
                 FROM (
@@ -349,14 +425,19 @@ class RelasiController {
                         GROUP_CONCAT(NULLIF(p.keterangan, '') SEPARATOR ', ') as keterangan
                     FROM pengiriman p
                     JOIN barang b ON p.barang_id = b.id
-                    WHERE p.relasi_id = ?
+                    WHERE p.relasi_id = ? {$innerDateWhere}
                     GROUP BY p.relasi_id, p.tanggal, p.barang_id, b.nama_barang
                 ) grouped
                 LEFT JOIN relasi_stok_awal rsa ON rsa.relasi_id = grouped.relasi_id AND rsa.barang_id = grouped.barang_id
              ) sub
-             ORDER BY sub.tanggal DESC, sub.barang_id ASC"
-        );
-        $stmt_deliv->execute([$id]);
+             ORDER BY sub.tanggal DESC, sub.barang_id ASC";
+        $stmt_deliv = $db->prepare($delivSql);
+        $paramIdx = 1;
+        $stmt_deliv->bindValue($paramIdx++, $id, PDO::PARAM_INT);
+        foreach ($filterParams as $fp) {
+            $stmt_deliv->bindValue($paramIdx++, $fp, is_int($fp) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $stmt_deliv->execute();
         $deliveries = $stmt_deliv->fetchAll();
 
         // Get last delivery info
@@ -369,7 +450,12 @@ class RelasiController {
         $last_delivery = $stmt_last->fetch();
         $tgl_terakhir = $last_delivery['tanggal_terakhir'] ? date('d-m-Y', strtotime($last_delivery['tanggal_terakhir'])) : 'Belum pernah';
 
-        $filename = "Laporan_Stok_Mitra_" . preg_replace('/[^A-Za-z0-9_\-]/', '_', $relasi['nama_relasi']) . "_" . date('Y-m-d') . ".xls";
+        $periodSuffix = "";
+        if (!empty($dateFilter)) $periodSuffix .= "_" . $dateFilter;
+        if (!empty($barangFilter)) $periodSuffix .= "_" . preg_replace('/[^A-Za-z0-9_\-]/', '_', $barangFilter);
+        if (empty($periodSuffix)) $periodSuffix = "_" . date('Y-m-d');
+
+        $filename = "Laporan_Stok_Mitra_" . preg_replace('/[^A-Za-z0-9_\-]/', '_', $relasi['nama_relasi']) . $periodSuffix . ".xls";
 
         ob_clean();
         header('Content-Type: application/vnd.ms-excel; charset=utf-8');
@@ -378,11 +464,16 @@ class RelasiController {
         echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
         echo '<head><meta charset="utf-8"></head><body>';
         
+        $periodeLabel = !empty($dateFilter) ? date('d-m-Y', strtotime($dateFilter)) : "Semua Tanggal";
+        $tabungLabel = !empty($barangFilter) ? htmlspecialchars($barangFilter) : "Semua Jenis Tabung";
+
         // 1. Header Info
         echo '<h2>Detail Mitra & Saldo Tabung</h2>';
         echo '<table border="0" cellpadding="3">';
         echo '<tr><td><strong>Nama Mitra/Relasi</strong></td><td>: ' . htmlspecialchars($relasi['nama_relasi']) . '</td></tr>';
         echo '<tr><td><strong>Lokasi/Alamat</strong></td><td>: ' . htmlspecialchars($relasi['lokasi']) . '</td></tr>';
+        echo '<tr><td><strong>Filter Tanggal</strong></td><td>: ' . $periodeLabel . '</td></tr>';
+        echo '<tr><td><strong>Filter Jenis Tabung</strong></td><td>: ' . $tabungLabel . '</td></tr>';
         echo '<tr><td><strong>Pengiriman Terakhir</strong></td><td>: ' . $tgl_terakhir . '</td></tr>';
         echo '</table><br>';
 
@@ -397,7 +488,16 @@ class RelasiController {
         echo '<th style="background-color: #4f46e5; color: #ffffff;">Stok Akhir</th>';
         echo '</tr>';
 
+        $renderedAudit = 0;
         foreach ($barangList as $b) {
+            if (!empty($barangFilter)) {
+                if (is_numeric($barangFilter)) {
+                    if ($b['id'] != (int)$barangFilter) continue;
+                } else {
+                    if (stripos($b['nama_barang'], $barangFilter) === false) continue;
+                }
+            }
+
             $init = isset($stokAwal[$b['id']]) ? $stokAwal[$b['id']] : 0;
             $masuk = isset($sums[$b['id']]) ? $sums[$b['id']]['masuk'] : 0;
             $keluar = isset($sums[$b['id']]) ? $sums[$b['id']]['keluar'] : 0;
@@ -405,6 +505,7 @@ class RelasiController {
             
             if ($init == 0 && $masuk == 0 && $keluar == 0) continue;
             
+            $renderedAudit++;
             echo '<tr>';
             echo '<td>' . htmlspecialchars($b['nama_barang']) . '</td>';
             echo '<td style="text-align: right;">' . $init . '</td>';
@@ -412,6 +513,9 @@ class RelasiController {
             echo '<td style="text-align: right; color: orange;">-' . $keluar . '</td>';
             echo '<td style="text-align: right; font-weight: bold;">' . $akhir . '</td>';
             echo '</tr>';
+        }
+        if ($renderedAudit === 0) {
+            echo '<tr><td colspan="5" style="text-align: center;">Tidak ada data audit saldo tabung yang sesuai filter.</td></tr>';
         }
         echo '</table><br><br>';
 
@@ -428,7 +532,7 @@ class RelasiController {
         echo '</tr>';
 
         if (empty($deliveries)) {
-            echo '<tr><td colspan="6" style="text-align: center;">Belum ada riwayat pengiriman.</td></tr>';
+            echo '<tr><td colspan="6" style="text-align: center;">Tidak ada riwayat pengiriman yang sesuai filter.</td></tr>';
         } else {
             foreach ($deliveries as $d) {
                 $saldo = (int)($d['saldo_berjalan'] ?? 0);

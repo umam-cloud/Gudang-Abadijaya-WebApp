@@ -47,36 +47,44 @@ class DashboardController {
         $pengirimanModel = new PengirimanModel();
         $recentDeliveries = $pengirimanModel->getAll(5, 0);
 
-        // Calculate Grand Total (Mitra + Gudang) per type
-        $grandTotalTabung = [];
-        $barangList = $barangModel->getAll();
-        foreach ($barangList as $b) {
-            $grandTotalTabung[$b['nama_barang']] = 0;
-        }
-
-        foreach ($tabungMitraDetail as $nama_barang => $jumlah) {
-            if (isset($grandTotalTabung[$nama_barang])) {
-                $grandTotalTabung[$nama_barang] += $jumlah;
-            } else {
-                $grandTotalTabung[$nama_barang] = $jumlah;
-            }
-        }
-
+        // Build lookup map for warehouse stock per item
+        $warehouseStockMap = [];
         foreach ($warehouseStocks as $w) {
-            $nama_barang = $w['nama_barang'];
-            if (isset($grandTotalTabung[$nama_barang])) {
-                $grandTotalTabung[$nama_barang] += (int)$w['stok'];
-            } else {
-                $grandTotalTabung[$nama_barang] = (int)$w['stok'];
-            }
+            $warehouseStockMap[$w['nama_barang']] = (int)$w['stok'];
         }
 
-        // Sort warehouse stocks for chart (highest total first)
+        // Calculate Grand Total (Mitra + Gudang) per type with detailed breakdown
+        $barangList = $barangModel->getAll();
+        $grandTotalDetail = [];
+        $grandTotalTabung = [];
+        $totalSemuaTabung = 0;
+
+        foreach ($barangList as $b) {
+            $nama_barang = $b['nama_barang'];
+            $stokGudang = $warehouseStockMap[$nama_barang] ?? 0;
+            $stokMitra = $tabungMitraDetail[$nama_barang] ?? 0;
+            $totalTabung = $stokGudang + $stokMitra;
+            $totalSemuaTabung += $totalTabung;
+
+            $grandTotalDetail[] = [
+                'nama_barang' => $nama_barang,
+                'stok_gudang' => $stokGudang,
+                'stok_mitra' => $stokMitra,
+                'grand_total' => $totalTabung
+            ];
+            $grandTotalTabung[$nama_barang] = $totalTabung;
+        }
+
+        // Sort warehouse stocks (highest total first)
         usort($warehouseStocks, function($a, $b) {
             return (int)$b['stok'] <=> (int)$a['stok'];
         });
 
-        // Sort grand total (highest total first)
+        // Sort grand total breakdown (highest grand total first)
+        usort($grandTotalDetail, function($a, $b) {
+            return $b['grand_total'] <=> $a['grand_total'];
+        });
+
         arsort($grandTotalTabung);
 
         require_once __DIR__ . '/../views/dashboard/index.php';
