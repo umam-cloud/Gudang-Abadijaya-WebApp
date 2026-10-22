@@ -282,7 +282,7 @@ class RelasiModel {
                     MAX(ev.tanggal) as evaluasi_tanggal,
                     (
                         COALESCE((SELECT SUM(stok_awal) FROM relasi_stok_awal WHERE relasi_id = r.id), 0) +
-                        COALESCE(SUM(p.jumlah_masuk), 0) - COALESCE(SUM(p.jumlah_keluar), 0)
+                        COALESCE((SELECT SUM(jumlah_masuk) - SUM(jumlah_keluar) FROM pengiriman WHERE relasi_id = r.id), 0)
                     ) as total_tabung_dipinjam
                 FROM relasi r
                 LEFT JOIN pengiriman p ON p.relasi_id = r.id

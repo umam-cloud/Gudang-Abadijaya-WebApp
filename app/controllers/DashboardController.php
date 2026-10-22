@@ -14,10 +14,11 @@ class DashboardController {
         // Fetch inactivity alerts
         $alerts = $relasiModel->getInactivityAlerts();
         
-        // Count active alerts (>30 days)
+        // Count active alerts (>30 days or never transacted, AND stock > 0)
         $activeAlertCount = 0;
         foreach ($alerts as $a) {
-            if ($a['hari_sejak_pengiriman'] !== null && $a['hari_sejak_pengiriman'] > 30) {
+            $stokRelasi = (int)($a['total_tabung_dipinjam'] ?? 0);
+            if ($stokRelasi > 0 && ($a['hari_sejak_pengiriman'] === null || $a['hari_sejak_pengiriman'] > 30)) {
                 $activeAlertCount++;
             }
         }

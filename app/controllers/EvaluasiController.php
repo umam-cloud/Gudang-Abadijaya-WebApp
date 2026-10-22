@@ -7,10 +7,14 @@ class EvaluasiController {
         $alerts = $relasiModel->getInactivityAlerts();
         
         // Filter to only active warnings (>30 days since last delivery or never had a delivery)
+        // AND strictly only relations that still hold cylinders (stok relasi > 0)
         $inactiveClients = [];
         foreach ($alerts as $a) {
-            // If they had deliveries and days > 30, OR if they never had deliveries
-            // Let's count them as inactive if days > 30 or null (so we encourage deliveries)
+            $stokRelasi = (int)($a['total_tabung_dipinjam'] ?? 0);
+            if ($stokRelasi <= 0) {
+                continue; // Jangan munculkan relasi jika stok = 0 atau minus
+            }
+
             if ($a['hari_sejak_pengiriman'] === null || $a['hari_sejak_pengiriman'] > 30) {
                 $inactiveClients[] = $a;
             }

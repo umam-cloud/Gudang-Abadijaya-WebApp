@@ -4,7 +4,7 @@
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
     <div>
         <h2 class="text-2xl font-bold tracking-tight">Evaluasi &amp; Alert Repurchasing</h2>
-        <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Monitor relasi yang sudah lebih dari 30 hari tidak ada pergerakan transaksi</p>
+        <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">Monitor relasi yang masih memegang tabung (stok > 0) dan sudah lebih dari 30 hari tidak ada pergerakan transaksi</p>
     </div>
     <div>
         <a href="<?= BASE_URL ?>relasi" class="btn-secondary">Semua Relasi</a>
@@ -37,6 +37,7 @@
                 <tr>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Nama Relasi / Mitra</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Lokasi</th>
+                    <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Stok Tabung di Mitra</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Tgl Pengiriman Terakhir</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700">Inaktif Selama</th>
                     <th class="px-5 py-4 font-semibold border-b border-slate-200 dark:border-gray-700 text-center">Tindakan Evaluasi</th>
@@ -45,9 +46,9 @@
             <tbody>
                 <?php if (empty($inactiveClients)): ?>
                     <tr>
-                        <td colspan="5" class="px-5 py-12 text-center text-slate-500">
+                        <td colspan="6" class="px-5 py-12 text-center text-slate-500">
                             <i class="ph-bold ph-check-circle text-[48px] mx-auto mb-4 opacity-50 block text-center"></i>
-                            Hebat! Semua mitra aktif bertransaksi dalam 30 hari terakhir.
+                            Hebat! Semua mitra aktif bertransaksi dalam 30 hari terakhir atau tidak ada tabung yang tertahan di mitra.
                         </td>
                     </tr>
                 <?php else: ?>
@@ -55,6 +56,11 @@
                         <tr class="bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200 font-bold"><?= htmlspecialchars($c['nama_relasi']) ?></td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200"><?= htmlspecialchars($c['lokasi'] ?: '-') ?></td>
+                            <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-center">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                    <?= (int)$c['total_tabung_dipinjam'] ?> Tabung
+                                </span>
+                            </td>
                             <td class="px-5 py-4 border-b border-slate-200 dark:border-gray-700 text-slate-800 dark:text-gray-200">
                                 <?= $c['tanggal_terakhir'] ? date('d M Y', strtotime($c['tanggal_terakhir'])) : '<span class="text-slate-400">Belum pernah</span>' ?>
                             </td>
