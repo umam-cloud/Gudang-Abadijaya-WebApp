@@ -5,9 +5,6 @@ class DashboardController {
         $gudangModel = new GudangModel();
         $barangModel = new BarangModel();
         
-        // Fetch all relation stock calculations
-        $clients = $relasiModel->getAllWithStocks();
-        
         // Fetch warehouse stocks
         $warehouseStocks = $gudangModel->getWarehouseStock();
         
@@ -23,20 +20,19 @@ class DashboardController {
             }
         }
         
-        $totalClients = count($clients);
+        // Accurate total count of all relations in the system
+        $totalClients = (int)$relasiModel->countAllRelasi();
         $totalCylinderTypes = count($warehouseStocks);
         
+        // Fetch aggregate stock held across ALL relations (no pagination limit)
+        $mitraStocks = $relasiModel->getTabungDiMitraSummary();
         $totalTabungMitra = 0;
         $tabungMitraDetail = [];
-        foreach ($clients as $client) {
-            foreach ($client['stocks'] as $stock) {
-                $totalTabungMitra += (int)$stock['stok_akhir'];
-                $nama_barang = $stock['nama_barang'];
-                if (!isset($tabungMitraDetail[$nama_barang])) {
-                    $tabungMitraDetail[$nama_barang] = 0;
-                }
-                $tabungMitraDetail[$nama_barang] += (int)$stock['stok_akhir'];
-            }
+        foreach ($mitraStocks as $ms) {
+            $stok = (int)$ms['total_di_mitra'];
+            $nama_barang = $ms['nama_barang'];
+            $tabungMitraDetail[$nama_barang] = $stok;
+            $totalTabungMitra += $stok;
         }
 
         $totalStokGudang = 0;

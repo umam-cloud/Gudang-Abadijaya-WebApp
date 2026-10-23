@@ -303,4 +303,30 @@ class RelasiModel {
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Get aggregate total of cylinders currently held at all partner relations grouped by item.
+     */
+    public function getTabungDiMitraSummary() {
+        $sql = "SELECT 
+                    b.id as barang_id,
+                    b.nama_barang,
+                    (COALESCE(sa.total_sa, 0) + COALESCE(p.total_masuk, 0) - COALESCE(p.total_keluar, 0)) as total_di_mitra
+                FROM barang b
+                LEFT JOIN (
+                    SELECT barang_id, SUM(stok_awal) as total_sa 
+                    FROM relasi_stok_awal 
+                    GROUP BY barang_id
+                ) sa ON sa.barang_id = b.id
+                LEFT JOIN (
+                    SELECT barang_id, SUM(jumlah_masuk) as total_masuk, SUM(jumlah_keluar) as total_keluar 
+                    FROM pengiriman 
+                    GROUP BY barang_id
+                ) p ON p.barang_id = b.id
+                ORDER BY b.nama_barang ASC";
+        
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 }
+
