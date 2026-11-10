@@ -305,9 +305,16 @@ class RelasiModel {
     }
 
     /**
-     * Get aggregate total of cylinders currently held at all partner relations grouped by item.
+     * Get aggregate total of cylinders held at all partner relations grouped by item, optionally filtered up to a specific date.
      */
-    public function getTabungDiMitraSummary() {
+    public function getTabungDiMitraSummary($date = '') {
+        $dateClause = "";
+        $params = [];
+        if (!empty($date)) {
+            $dateClause = " WHERE tanggal <= ?";
+            $params[] = $date;
+        }
+
         $sql = "SELECT 
                     b.id as barang_id,
                     b.nama_barang,
@@ -321,11 +328,13 @@ class RelasiModel {
                 LEFT JOIN (
                     SELECT barang_id, SUM(jumlah_masuk) as total_masuk, SUM(jumlah_keluar) as total_keluar 
                     FROM pengiriman 
+                    $dateClause
                     GROUP BY barang_id
                 ) p ON p.barang_id = b.id
                 ORDER BY b.nama_barang ASC";
         
-        $stmt = $this->db->query($sql);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 }

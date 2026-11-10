@@ -44,24 +44,52 @@ class DashboardController {
         $pengirimanModel = new PengirimanModel();
         $recentDeliveries = $pengirimanModel->getAll(5, 0);
 
-        // Build lookup map for warehouse stock per item
+        // Optional history date filter applied exclusively to the Grand Total Tabung table
+        $dateFilter = isset($_GET['date']) ? trim($_GET['date']) : '';
+        if ($dateFilter !== '') {
+            $dt = DateTime::createFromFormat('Y-m-d', $dateFilter);
+            if (!$dt || $dt->format('Y-m-d') !== $dateFilter) {
+                $dateFilter = '';
+            }
+        }
+
+        if ($dateFilter !== '') {
+            $grandTotalWarehouseStocks = $gudangModel->getWarehouseStockAtDate($dateFilter);
+            $grandTotalMitraStocks = $relasiModel->getTabungDiMitraSummary($dateFilter);
+        } else {
+            $grandTotalWarehouseStocks = $warehouseStocks;
+            $grandTotalMitraStocks = $mitraStocks;
+        }
+
+        // Build lookup maps keyed by barang_id for Grand Total breakdown
         $warehouseStockMap = [];
-        foreach ($warehouseStocks as $w) {
-            $warehouseStockMap[$w['nama_barang']] = (int)$w['stok'];
+        foreach ($grandTotalWarehouseStocks as $w) {
+            $warehouseStockMap[(int)$w['barang_id']] = (int)$w['stok'];
+        }
+
+        $mitraStockMap = [];
+        foreach ($grandTotalMitraStocks as $ms) {
+            $mitraStockMap[(int)$ms['barang_id']] = (int)$ms['total_di_mitra'];
         }
 
         // Calculate Grand Total (Mitra + Gudang) per type with detailed breakdown
         $barangList = $barangModel->getAll();
         $grandTotalDetail = [];
         $grandTotalTabung = [];
-        $totalSemuaTabung = 0;
+        $grandTotalStokGudang = 0;
+        $grandTotalTabungMitra = 0;
+        $grandTotalSemuaTabung = 0;
 
         foreach ($barangList as $b) {
+            $barangId = (int)$b['id'];
             $nama_barang = $b['nama_barang'];
-            $stokGudang = $warehouseStockMap[$nama_barang] ?? 0;
-            $stokMitra = $tabungMitraDetail[$nama_barang] ?? 0;
+            $stokGudang = $warehouseStockMap[$barangId] ?? 0;
+            $stokMitra = $mitraStockMap[$barangId] ?? 0;
             $totalTabung = $stokGudang + $stokMitra;
-            $totalSemuaTabung += $totalTabung;
+
+            $grandTotalStokGudang += $stokGudang;
+            $grandTotalTabungMitra += $stokMitra;
+            $grandTotalSemuaTabung += $totalTabung;
 
             $grandTotalDetail[] = [
                 'nama_barang' => $nama_barang,

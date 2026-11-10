@@ -106,38 +106,58 @@
 <!-- Grand Total & Warehouse Stock Status -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
     <!-- Grand Total (Prominent Feature Card) -->
-    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+    <div id="grandTotalCard" class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between">
         <div>
             <!-- Card Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                 <div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-primary flex items-center justify-center">
                             <i class="ph-bold ph-stack text-lg"></i>
                         </div>
                         <h3 class="text-lg font-bold text-slate-800 dark:text-gray-100">Grand Total Tabung</h3>
+                        <?php if ($dateFilter !== ''): ?>
+                            <span class="badge badge-warning text-[11px] font-bold px-2.5 py-0.5">
+                                Per <?= date('d-m-Y', strtotime($dateFilter)) ?>
+                            </span>
+                        <?php endif; ?>
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Total keseluruhan aset tabung (Stok Gudang + Sedang Dipinjam Mitra)</p>
+                    <?php if ($dateFilter !== ''): ?>
+                        <p class="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1 italic">*Mode Histori: Proyeksi aset tabung pada akhir tanggal <?= date('d-m-Y', strtotime($dateFilter)) ?>.</p>
+                    <?php else: ?>
+                        <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Total keseluruhan aset tabung (Stok Gudang + Sedang Dipinjam Mitra)</p>
+                    <?php endif; ?>
                 </div>
                 
-                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
-                    <!-- Dropdown Select Filter -->
-                    <select id="selectFilterGrandTotal" class="py-1.5 px-3 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-700 dark:text-gray-200 focus:outline-none focus:border-primary">
-                        <option value="">Semua Jenis Tabung</option>
-                        <?php foreach ($grandTotalDetail as $g): ?>
-                            <option value="<?= htmlspecialchars($g['nama_barang']) ?>"><?= htmlspecialchars($g['nama_barang']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="flex flex-col items-stretch sm:items-end gap-2 w-full xl:w-auto">
+                    <!-- Date History Filter Form -->
+                    <form action="<?= BASE_URL ?>dashboard#grandTotalCard" method="GET" class="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
+                        <input type="date" name="date" id="dateFilterGrandTotal" value="<?= htmlspecialchars($dateFilter) ?>" aria-label="Pilih tanggal histori Grand Total Tabung" class="py-1.5 px-3 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-700 dark:text-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:[color-scheme:dark]" title="Pilih Tanggal Histori">
+                        <button type="submit" class="btn-primary !py-1.5 !px-3.5 !text-xs !rounded-xl whitespace-nowrap">Cek Histori</button>
+                        <?php if ($dateFilter !== ''): ?>
+                            <a href="<?= BASE_URL ?>dashboard#grandTotalCard" class="btn-secondary !py-1.5 !px-3.5 !text-xs !rounded-xl whitespace-nowrap">Reset</a>
+                        <?php endif; ?>
+                    </form>
 
-                    <!-- Live Search Input -->
-                    <div class="relative flex-grow sm:flex-grow-0">
-                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input type="text" id="filterGrandTotal" placeholder="Cari jenis..." class="w-full sm:w-36 pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-900 dark:text-gray-100 focus:outline-none focus:border-primary">
+                    <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+                        <!-- Dropdown Select Filter -->
+                        <select id="selectFilterGrandTotal" aria-label="Filter jenis tabung" class="py-1.5 px-3 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-700 dark:text-gray-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                            <option value="">Semua Jenis Tabung</option>
+                            <?php foreach ($grandTotalDetail as $g): ?>
+                                <option value="<?= htmlspecialchars($g['nama_barang']) ?>"><?= htmlspecialchars($g['nama_barang']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <!-- Live Search Input -->
+                        <div class="relative flex-grow sm:flex-grow-0">
+                            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" id="filterGrandTotal" placeholder="Cari jenis..." aria-label="Cari jenis tabung" class="w-full sm:w-36 pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-slate-900 dark:text-gray-100 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                        </div>
+                        <!-- Total Count Badge -->
+                        <span class="badge badge-info text-xs font-bold px-3 py-1.5 whitespace-nowrap">
+                            <i class="ph-bold ph-cylinder mr-1"></i> <?= number_format($grandTotalSemuaTabung, 0, ',', '.') ?> Unit
+                        </span>
                     </div>
-                    <!-- Total Count Badge -->
-                    <span class="badge badge-info text-xs font-bold px-3 py-1.5 whitespace-nowrap">
-                        <i class="ph-bold ph-cylinder mr-1"></i> <?= number_format($totalSemuaTabung, 0, ',', '.') ?> Unit
-                    </span>
                 </div>
             </div>
 
@@ -170,11 +190,11 @@
                                     <td class="px-5 py-3.5 text-right font-medium <?= $gudang < 0 ? 'text-danger' : 'text-success' ?>">
                                         <?= number_format($gudang, 0, ',', '.') ?>
                                     </td>
-                                    <td class="px-5 py-3.5 text-right font-medium text-indigo-600 dark:text-indigo-400">
+                                    <td class="px-5 py-3.5 text-right font-medium <?= $mitra < 0 ? 'text-danger' : 'text-indigo-600 dark:text-indigo-400' ?>">
                                         <?= number_format($mitra, 0, ',', '.') ?>
                                     </td>
                                     <td class="px-5 py-3.5 text-right font-black text-slate-900 dark:text-gray-100">
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md <?= $total < 0 ? 'bg-danger-bg text-danger' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300' ?>">
                                             <?= number_format($total, 0, ',', '.') ?>
                                         </span>
                                     </td>
@@ -185,11 +205,11 @@
                     <tfoot class="bg-slate-50 dark:bg-gray-800 text-slate-800 dark:text-gray-200 font-bold border-t-2 border-slate-200 dark:border-gray-700 sticky bottom-0 z-10 shadow-sm">
                         <tr>
                             <td class="px-5 py-3">Total (<?= count($grandTotalDetail) ?> Jenis Tabung)</td>
-                            <td class="px-5 py-3 text-right text-success"><?= number_format($totalStokGudang, 0, ',', '.') ?></td>
-                            <td class="px-5 py-3 text-right text-indigo-600 dark:text-indigo-400"><?= number_format($totalTabungMitra, 0, ',', '.') ?></td>
+                            <td class="px-5 py-3 text-right <?= $grandTotalStokGudang < 0 ? 'text-danger' : 'text-success' ?>"><?= number_format($grandTotalStokGudang, 0, ',', '.') ?></td>
+                            <td class="px-5 py-3 text-right <?= $grandTotalTabungMitra < 0 ? 'text-danger' : 'text-indigo-600 dark:text-indigo-400' ?>"><?= number_format($grandTotalTabungMitra, 0, ',', '.') ?></td>
                             <td class="px-5 py-3 text-right font-black text-indigo-600 dark:text-indigo-400">
-                                <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/50">
-                                    <?= number_format($totalSemuaTabung, 0, ',', '.') ?>
+                                <span class="inline-block px-2.5 py-0.5 rounded-md <?= $grandTotalSemuaTabung < 0 ? 'bg-danger-bg text-danger' : 'bg-indigo-100 dark:bg-indigo-900/50' ?>">
+                                    <?= number_format($grandTotalSemuaTabung, 0, ',', '.') ?>
                                 </span>
                             </td>
                         </tr>
@@ -204,7 +224,11 @@
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-success"></span> Stok Gudang</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> Tabung di Mitra</span>
             </div>
-            <span class="italic text-[11px]">*Diperbarui otomatis secara real-time dari log transaksi</span>
+            <?php if ($dateFilter !== ''): ?>
+                <span class="italic text-[11px]">*Mode histori: posisi stok per akhir tanggal <?= date('d-m-Y', strtotime($dateFilter)) ?></span>
+            <?php else: ?>
+                <span class="italic text-[11px]">*Diperbarui otomatis secara real-time dari log transaksi</span>
+            <?php endif; ?>
         </div>
     </div>
     
